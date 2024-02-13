@@ -3,8 +3,7 @@
 #include "DxLib.h"
 #include <math.h>
 
-GameMainScene::GameMainScene() :high_score(0), back_ground(NULL),
-barrier_image(NULL), mileage(0), player(nullptr),enemy(nullptr)
+GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr),enemy(nullptr)
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
@@ -32,7 +31,7 @@ void GameMainScene::Initialize()
 
 	//画像の読み込み
 	back_ground = LoadGraph(        "Resource/images/Scene/GameMain/background.png");
-	barrier_image = LoadGraph(      "Resource/images/barrier.png");
+	//barrier_image = LoadGraph(      "Resource/images/barrier.png");
 	const int result = LoadDivGraph("Resource/images/fish.png", 3, 1, 3, 120, 63,
 		enemy_image);
 
@@ -45,11 +44,6 @@ void GameMainScene::Initialize()
 	if (result == -1)
 	{
 		throw("Resource/images/fish.pngがありません\n");
-	}
-
-	if (barrier_image == -1)
-	{
-		throw("Resource/images/barrier.pngがありません\n");
 	}
 
 	//オブジェクトの生成
@@ -276,10 +270,10 @@ void GameMainScene::ReadHighScore()
 bool GameMainScene::IsHitCheck(Player* p, Enemy* e)
 {
 	//プレイヤーがバリアを張っていたら、当たり判定を無視する
-	if (p->IsBarrier())
-	{
-		return false;
-	}
+	//if (p->IsBarrier())
+	//{
+	//	return false;
+	//}
 
 	//敵情報がなければ、当たり判定を無視する
 	if (e == nullptr)

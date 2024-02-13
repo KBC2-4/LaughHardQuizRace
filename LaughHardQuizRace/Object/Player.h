@@ -18,7 +18,6 @@ private:
 	float gear_ratios[6] = { 0.0f, 2.5f, 2.0f, 1.5f, 1.0f, 0.5f }; // ギアごとの加速度比
 	float hp;           //体力
 	float fuel;         //燃料
-	int barrier_count;  //バリアの枚数
 	Barrier* barrier;   //バリア
 
 public:
@@ -39,8 +38,6 @@ public:
 	float GetGear()const;           //ギア取得処理
 	float GetFuel()const;            //燃料取得
 	float GetHp()const;              //体力取得
-	int GetBarrierCount()const;     //バリアの枚数取得
-	bool IsBarrier()const;           //バリア有効か？を取得
 private:
 	void Movement();                 //移動処理
 	void Acceleration();             //加速処理

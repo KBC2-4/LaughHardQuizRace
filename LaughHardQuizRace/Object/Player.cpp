@@ -5,7 +5,7 @@
 
 
 Player::Player() :is_active(false), image(NULL), location(0.0f), box_size(0.0f),
-angle(0.0f),speed(0.0f), gear(0), hp(0.0f), fuel(0.0f), barrier_count(0),barrier(nullptr)
+angle(0.0f),speed(0.0f), gear(0), hp(0.0f), fuel(0.0f)
 {
 	// 現在の経過時間を取得
 	previous_time = GetNowCount();
@@ -30,7 +30,6 @@ void Player::Initialize()
 	gear = 0;
 	hp = 1000;
 	fuel = 6000;
-	barrier_count = 3;
 
 	//画像の読み込み
 	image = LoadGraph("Resource/images/Scene/GameMain/player.png");
@@ -68,31 +67,26 @@ void Player::Update()
 	//加減速処理
 	Acceleration();
 
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_START))
-	{
-		is_active = false;
-	}
-
 	//バリア処理
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_B) && barrier_count > 0)
-	{
-		if (barrier == nullptr)
-		{
-			barrier_count--;
-			barrier = new Barrier;
-		}
-	}
+	//if (InputControl::GetButtonDown(XINPUT_BUTTON_B) && barrier_count > 0)
+	//{
+	//	if (barrier == nullptr)
+	//	{
+	//		barrier_count--;
+	//		barrier = new Barrier;
+	//	}
+	//}
 
-	//バリアが生成されていたら、更新を行う
-	if (barrier != nullptr)
-	{
-		//バリア時間が経過したか？していたら、削除する
-		if (barrier->IsFinished(this->speed))
-		{
-			delete barrier;
-			barrier = nullptr;
-		}
-	}
+	////バリアが生成されていたら、更新を行う
+	//if (barrier != nullptr)
+	//{
+	//	//バリア時間が経過したか？していたら、削除する
+	//	if (barrier->IsFinished(this->speed))
+	//	{
+	//		delete barrier;
+	//		barrier = nullptr;
+	//	}
+	//}
 }
 
 
@@ -102,11 +96,6 @@ void Player::Draw()
 	//プレイヤー画像の描画
 	DrawRotaGraphF(location.x, location.y, 1.0f, angle, image, TRUE);
 
-	//バリアが生成されていたら、描画を行う
-	if (barrier != nullptr)
-	{
-		barrier->Draw(this->location);
-	}
 }
 
 
@@ -116,11 +105,6 @@ void Player::Finalize()
 	//読み込んだ画像を削除
 	DeleteGraph(image);
 
-	//バリアが生成されていたら、削除する
-	if (barrier != nullptr)
-	{
-		delete barrier;
-	}
 }
 
 
@@ -178,20 +162,6 @@ float Player::GetHp()const
 }
 
 
-//バリア枚数取得処理
-int Player::GetBarrierCount()const
-{
-	return this->barrier_count;
-}
-
-
-//バリアが有効か？を取得
-bool Player::IsBarrier()const
-{
-	return (barrier != nullptr);
-}
-
-
 //移動処理
 void Player::Movement()
 {
@@ -227,47 +197,6 @@ void Player::Movement()
 		location -= move;
 	}
 }
-
-
-//加減速処理
-//void Player::Acceleration()
-//{
-//	constexpr float max_speed = 50.0f; // 最大速度
-//	constexpr float min_speed = 1.0f; // 最小速度
-//
-//	// 経過時間(秒)
-//	// 現在の時刻を取得
-//	const unsigned int current_time = GetNowCount();
-//
-//	// 経過時間(秒)を計算
-//	float deltaTime = static_cast<float>(current_time - previous_time) * 0.001f; // ミリ秒から秒への変換
-//
-//	// 次のフレームのために現在の時刻を保存
-//	previous_time = current_time;
-//
-//	// ギアチェンジ処理
-//	UpdateGear();
-//
-//	// 目標スピードを計算（ギアに応じて）
-//	float targetSpeed = gear_ratios[gear] * max_speed;
-//
-//	// 現在のスピードを目標に向けて滑らかに変更
-//	if (speed < targetSpeed) {
-//		// 加速
-//		speed = MathUtils::Lerp(speed, targetSpeed, MathUtils::EaseInOut(deltaTime * base_acceleration));
-//		if (speed > targetSpeed) speed = targetSpeed;
-//	}
-//	else if (speed > targetSpeed) {
-//		// 減速
-//		speed = MathUtils::Lerp(speed, targetSpeed, MathUtils::EaseInOut(deltaTime * base_acceleration));
-//		if (speed < min_speed) speed = min_speed;
-//	}
-//
-//	// 最大速度と最小速度の保証
-//	if (speed > max_speed) speed = max_speed;
-//	if (speed < min_speed) speed = min_speed;
-//
-//}
 
 // ギアチェンジ処理
 void Player::UpdateGear()
