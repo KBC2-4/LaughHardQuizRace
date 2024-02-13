@@ -31,20 +31,20 @@ void GameMainScene::Initialize()
 	ReadHighScore();
 
 	//画像の読み込み
-	back_ground = LoadGraph("Resource/images/back.png");
-	barrier_image = LoadGraph("Resource/images/barrier.png");
-	const int result = LoadDivGraph("Resource/images/car.bmp", 3, 3, 1, 63, 120,
+	back_ground = LoadGraph(        "Resource/images/Scene/GameMain/background.png");
+	barrier_image = LoadGraph(      "Resource/images/barrier.png");
+	const int result = LoadDivGraph("Resource/images/fish.png", 3, 1, 3, 120, 63,
 		enemy_image);
 
 	//エラーチェック
 	if (back_ground == -1)
 	{
-		throw("Resource/images/back.pngがありません\n");
+		throw("Resource/images/Scene/GameMain/background.pngがありません\n");
 	}
 
 	if (result == -1)
 	{
-		throw("Resource/images/car.bmpがありません\n");
+		throw("Resource/images/fish.pngがありません\n");
 	}
 
 	if (barrier_image == -1)
@@ -72,14 +72,15 @@ eSceneType GameMainScene::Update()
 	player->Update();
 
 	//移動距離の更新
-	mileage += static_cast<int>(player->GetSpeed()) + 5;
+	mileage += static_cast<int>(player->GetSpeed()) - 5;
 
 	//敵生成処理
 	//if (mileage / 20 % 100 == 0)
 	// 100マイルごとに敵を生成
 	if (mileage % 100 == 0)
 	{
-		printfDx("%d\n", mileage);
+		//! デバッグ
+		//printfDx("%d\n", mileage);
 		for (int i = 0; i < 10; i++)
 		{
 			if (enemy[i] == nullptr)
@@ -132,7 +133,7 @@ eSceneType GameMainScene::Update()
 void GameMainScene::Draw()const
 {
 	//背景画像の描画
-	DrawGraph(mileage % 1280 - 1280, 0, back_ground, TRUE);
+	DrawGraph(mileage % 1280 + 1280, 0, back_ground, TRUE);
 	DrawGraph(mileage % 1280, 0, back_ground, TRUE);
 
 	//敵の描画
@@ -191,14 +192,14 @@ void GameMainScene::Draw()const
 
 
 
-	// DEBUG
-	for (int i = 0; i < 10; i++)
-	{
-		if (enemy[i] != nullptr) {
-			const int lane = static_cast<int>((enemy[i]->GetLocation().x - 40) / 105) + 1;
-			DrawFormatString(100, 20 + i * 20, 0xffffff, "Enemy: レーン：%d x %f , y %f", lane, enemy[i]->GetLocation().x, enemy[i]->GetLocation().y);
-		}
-	}
+	//! DEBUG
+	//for (int i = 0; i < 10; i++)
+	//{
+	//	if (enemy[i] != nullptr) {
+	//		const int lane = static_cast<int>((enemy[i]->GetLocation().x - 40) / 105) + 1;
+	//		DrawFormatString(100, 20 + i * 20, 0xffffff, "Enemy: レーン：%d x %f , y %f", lane, enemy[i]->GetLocation().x, enemy[i]->GetLocation().y);
+	//	}
+	//}
 }
 
 

@@ -33,12 +33,12 @@ void Player::Initialize()
 	barrier_count = 3;
 
 	//画像の読み込み
-	image = LoadGraph("Resource/images/car1pol.png");
+	image = LoadGraph("Resource/images/Scene/GameMain/player.png");
 
 	//エラーチェック
 	if (image == -1)
 	{
-		throw("Resource/images/car1pol.pngがありません\n");
+		throw("Resource/images/Scene/GameMain/player.pngがありません\n");
 	}
 }
 
