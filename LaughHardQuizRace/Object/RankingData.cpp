@@ -1,6 +1,7 @@
 #include "RankingData.h"
 #include <stdio.h>
-#include <string.h>
+#include "../Utility/SpreadsheetClient.h"
+#include "../Utility/json.hpp"
 
 RankingData::RankingData()
 {
@@ -15,6 +16,10 @@ RankingData::RankingData()
 	}
 }
 
+RankingData::RankingData(const std::string& name, int sc) : playerName(name), score_(sc)
+{
+}
+
 
 RankingData::~RankingData()
 {
@@ -25,6 +30,11 @@ RankingData::~RankingData()
 //初期化処理
 void RankingData::Initialize()
 {
+	// スクリプトIDを設定
+	//SpreadsheetClient client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB");
+	//auto task = client.GetRanking();
+	//data = task.get(); // 非同期タスクの結果を取得（ブロックされる）
+
 	//ランキングデータの読み込み
 	FILE* fp = nullptr;
 
@@ -59,6 +69,22 @@ void RankingData::Finalize()
 
 }
 
+// JSONデータからランキングリストを作成
+std::vector<RankingData> RankingData::ParseAndSortRankingData(const std::string& jsonData) {
+	nlohmann::json j = nlohmann::json::parse(jsonData);
+	std::vector<RankingData> entries;
+
+	for (auto& element : j) {
+		entries.emplace_back(element["PlayerID"].get<std::string>(), element["Score"].get<int>());
+	}
+
+	// スコアで降順にソート
+	std::sort(entries.begin(), entries.end(), [](const RankingData& a, const RankingData& b) {
+		return a.score > b.score;
+		});
+
+	return entries;
+}
 
 //データ設定処理
 void RankingData::SetRankingData(int score, const char* name)
@@ -88,6 +114,11 @@ int RankingData::GetRank(int value)const
 const char* RankingData::GetName(int value)const
 {
 	return name[value];
+}
+
+const std::wstring RankingData::GetData() const
+{
+	return data;
 }
 
 

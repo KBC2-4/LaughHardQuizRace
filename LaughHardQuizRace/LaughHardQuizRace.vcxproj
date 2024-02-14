@@ -136,6 +136,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AppMain.cpp" />
+    <ClCompile Include="Object\Question.cpp" />
+    <ClCompile Include="Utility\Animation\AnimatedRectangle.cpp" />
+    <ClCompile Include="Utility\Animation\Animation.cpp" />
+    <ClCompile Include="Utility\Animation\MoveAnimation.cpp" />
     <ClCompile Include="Utility\InputControl.cpp" />
     <ClCompile Include="Scene\HelpScene.cpp" />
     <ClCompile Include="Scene\RankingDispScene.cpp" />
@@ -148,8 +152,10 @@
     <ClCompile Include="Object\Player.cpp" />
     <ClCompile Include="Object\RankingData.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
+    <ClCompile Include="Utility\SpreadsheetClient.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Object\Question.h" />
     <ClInclude Include="Scene\HelpScene.h" />
     <ClInclude Include="Scene\RankingDispScene.h" />
     <ClInclude Include="Scene\RankingInputScene.h" />
@@ -162,8 +168,12 @@
     <ClInclude Include="Object\RankingData.h" />
     <ClInclude Include="Scene\SceneBase.h" />
     <ClInclude Include="Scene\TitleScene.h" />
+    <ClInclude Include="Utility\Animation\AnimatedRectangle.h" />
+    <ClInclude Include="Utility\Animation\Animation.h" />
+    <ClInclude Include="Utility\Animation\MoveAnimation.h" />
     <ClInclude Include="Utility\InputControl.h" />
     <ClInclude Include="Utility\MathUtils.h" />
+    <ClInclude Include="Utility\SpreadsheetClient.h" />
     <ClInclude Include="Utility\Vector2D.h" />
   </ItemGroup>
   <ItemGroup>

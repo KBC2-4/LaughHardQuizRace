@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+#include "../Utility/SpreadsheetClient.h"
 #include "SceneBase.h"
 
 class TitleScene:public SceneBase
@@ -11,6 +13,9 @@ private:
 	int menu_image;
 	int cursor_image;
 	int menu_cursor;
+	int play_count;             //ƒvƒŒƒC‰ñ”
+
+	//SpreadsheetClient client;
 
 public:
 	TitleScene();
