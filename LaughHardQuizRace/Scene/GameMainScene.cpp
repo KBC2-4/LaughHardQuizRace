@@ -3,7 +3,9 @@
 #include "DxLib.h"
 #include <math.h>
 
-GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr),enemy(nullptr)
+
+GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr), enemy(nullptr),
+question("Resource/dat/question.csv"), animatedRect(3000, 600, 800, 340)
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
@@ -30,7 +32,7 @@ void GameMainScene::Initialize()
 	ReadHighScore();
 
 	//画像の読み込み
-	back_ground = LoadGraph(        "Resource/images/Scene/GameMain/background.png");
+	back_ground = LoadGraph("Resource/images/Scene/GameMain/background.png");
 	//barrier_image = LoadGraph(      "Resource/images/barrier.png");
 	const int result = LoadDivGraph("Resource/images/fish.png", 3, 1, 3, 120, 63,
 		enemy_image);
@@ -71,7 +73,7 @@ eSceneType GameMainScene::Update()
 	//敵生成処理
 	//if (mileage / 20 % 100 == 0)
 	// 100マイルごとに敵を生成
-	if (mileage % 100 == 0)
+	if (mileage % 1000 == 0)
 	{
 		//! デバッグ
 		//printfDx("%d\n", mileage);
@@ -90,12 +92,15 @@ eSceneType GameMainScene::Update()
 	//敵の更新と当たり判定チェック
 	for (int i = 0; i < 10; i++)
 	{
+		// 当たり判定結果をリセット
+		hitEnemies[i] = false;
+
 		if (enemy[i] != nullptr)
 		{
 			enemy[i]->Updata(player->GetSpeed());
 
 			//画面外に行ったら、敵を削除してスコア加算
-			if (enemy[i]->GetLocation().y >= 640.0f)
+			if (enemy[i]->GetLocation().x <= 0.0f)
 			{
 				enemy_count[enemy[i]->GetType()]++;
 				enemy[i]->Finalize();
@@ -104,13 +109,16 @@ eSceneType GameMainScene::Update()
 			}
 
 			//当たり判定の確認
-			if (IsHitCheck(player, enemy[i]))
-			{
+			// 当たり判定の結果を配列に保持
+			hitEnemies[i] = IsHitCheck(player, enemy[i]);
+			if (hitEnemies[i]) {
+
 				player->SetActive(false);
-				player->DecreaseHp(-50.0f);
-				enemy[i]->Finalize();
-				delete enemy[i];
-				enemy[i] = nullptr;
+				//player->DecreaseHp(-50.0f);
+
+				//enemy[i]->Finalize();
+				//delete enemy[i];
+				//enemy[i] = nullptr;
 			}
 		}
 	}
@@ -141,6 +149,36 @@ void GameMainScene::Draw()const
 
 	//プレイヤーの描画
 	player->Draw();
+
+	for (int i = 0; i < 10; i++) {
+		// Updateでの当たり判定結果がtrueの場合
+		if (hitEnemies[i]) {
+			player->IsStop(true);
+			enemy[i]->IsStop(true);
+			animatedRect.Draw();
+		}
+	}
+
+
+	//! デバッグ 問題の表示
+	//for (const auto& item : question.GetQuizItems()) {
+	//	printfDx("Question: %s\n", item.question.c_str());
+	//	printfDx("Difficulty: %d\n", item.difficultyLevel);
+	//	printfDx("Answer: %s\n", item.answer.c_str());
+
+	//	if (!item.wrongs.empty()) {
+	//		for (const auto& wrong : item.wrongs) {
+	//			printfDx("Wrong: %s\n", wrong.c_str());
+	//		}
+	//	}
+	//	else {
+	//		// wrongsが空の場合
+	//		printfDx("Wrongs: None\n");
+	//	}
+
+	//	printfDx("-----------------------\n");
+	//}
+
 
 	//UIの描画
 	//DrawBox(500, 0, 640, 480, GetColor(0, 153, 0), TRUE);
@@ -186,7 +224,7 @@ void GameMainScene::Draw()const
 
 
 
-	//! DEBUG
+	//! DEBUG エネミー
 	//for (int i = 0; i < 10; i++)
 	//{
 	//	if (enemy[i] != nullptr) {
@@ -267,7 +305,7 @@ void GameMainScene::ReadHighScore()
 
 
 //当たり判定処理（プレイヤーと敵）
-bool GameMainScene::IsHitCheck(Player* p, Enemy* e)
+bool GameMainScene::IsHitCheck(Player* p, Enemy* e) const
 {
 	//プレイヤーがバリアを張っていたら、当たり判定を無視する
 	//if (p->IsBarrier())
@@ -282,10 +320,10 @@ bool GameMainScene::IsHitCheck(Player* p, Enemy* e)
 	}
 
 	//位置情報の差分を取得
-	Vector2D diff_location = p->GetLocation() - e->GetLocation();
+	const Vector2D diff_location = p->GetLocation() - e->GetLocation();
 
 	//当たり判定サイズの大きさを取得
-	Vector2D box_ex = p->GetBoxSize() + e->GetBoxSize();
+	const Vector2D box_ex = p->GetBoxSize() + e->GetBoxSize();
 
 	//コリジョンデータより位置情報の差分が小さいなら、ヒット判定とする
 	return ((fabsf(diff_location.x) < box_ex.x) && (fabsf(diff_location.y) < box_ex.y));
