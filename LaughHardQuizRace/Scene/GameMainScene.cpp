@@ -5,7 +5,8 @@
 
 
 GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr), enemy(nullptr),
-/*question("Resource/dat/question.csv"),*/ animatedRect(3000, 600, 800, 340)
+/*question("Resource/dat/question.csv"), */animatedRect(3000, 600, 800, 340), time_limit(0), 
+start_count(GetNowCount() + 1000 * 100),clear_flg(false)
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
@@ -64,6 +65,25 @@ void GameMainScene::Initialize()
 //更新処理
 eSceneType GameMainScene::Update()
 {
+	//制限時間の経過
+	time_limit = GetNowCount() - start_count;
+
+	//制限時間が0以下になった場合、リザルト画面へ
+	if (time_limit > 0) { clear_flg = true; }
+
+	//不正解だった場合、制限時間を減算させる
+	if (answer == GameMainScene::Answer::wrong) {
+		start_count -= 1000 * 5;
+		//PlaySoundMem(wrong_se, DX_PLAYTYPE_BACK, TRUE);
+	}
+
+	//正解だった場合、clear_countを加算する
+	else if (answer == GameMainScene::Answer::correct) {
+		start_count += 1000 * 1;
+		/*clear_count++;*/
+		//PlaySoundMem(correct_se, DX_PLAYTYPE_BACK, TRUE);
+	}
+
 	//プレイヤーの更新
 	player->Update();
 
@@ -138,6 +158,8 @@ void GameMainScene::Draw()const
 	DrawGraph(mileage % 1280 + 1280, 0, back_ground, TRUE);
 	DrawGraph(mileage % 1280, 0, back_ground, TRUE);
 
+	DrawFormatString2ToHandle(1000, 50, 0x4E75ED, 0xFFFFFF, font_handle_h2, "%5d.%.3d", -time_limit / 1000, -time_limit % 1000);
+	DrawFormatString2ToHandle(50, 50, 0xFF0000, 0xFFFFFF, font_handle_h2, "正解数：%2d", high_score);
 	//敵の描画
 	for (int i = 0; i < 10; i++)
 	{

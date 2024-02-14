@@ -6,7 +6,7 @@
 #include "../Object/Question.h"
 #include "../Utility/Animation/AnimatedRectangle.h"
 
-class GameMainScene:public SceneBase
+class GameMainScene :public SceneBase
 {
 private:
 	int font_handle_h2;     //フォントハンドル
@@ -17,6 +17,14 @@ private:
 	int mileage;         //走行距離
 	int enemy_image[3];  //敵画像
 	int enemy_count[3];  //通り過ぎた敵カウント
+	int time_limit;      //制限時間
+	int start_count;     //ゲーム開始時のカウント
+	enum class Answer {
+		unanswered, //未回答
+		wrong,		//不正解
+		correct,	//正解
+	}answer;
+	bool clear_flg;   //ゲームクリア時のフラグ
 	Player* player;      //プレイヤー
 	Enemy** enemy;       //敵
 	//Question question;  //問題
