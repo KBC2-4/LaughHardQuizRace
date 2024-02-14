@@ -19,8 +19,9 @@ void TitleScene::Initialize()
 {
 	//画像の読み込み
 	background_image = LoadGraph("Resource/images/Scene/Title/background.png");
-	menu_image = LoadGraph("Resource/images/menu.bmp");
-	cursor_image = LoadGraph("Resource/images/cone.bmp");
+	menu_image = LoadGraph("Resource/images/menu.png");
+	cursor_image = LoadGraph("Resource/images/cone.png");
+	title_image = LoadGraph("Resource/images/title2.png");
 
 	//エラーチェック
 	if (background_image == -1)
@@ -29,11 +30,15 @@ void TitleScene::Initialize()
 	}
 	if (menu_image == -1)
 	{
-		throw("Resource/images/menu.bmpがありません\n");
+		throw("Resource/images/menu.pngがありません\n");
 	}
 	if (cursor_image == -1)
 	{
-		throw("Resource/images/cursor.bmpがありません\n");
+		throw("Resource/images/cursor.pngがありません\n");
+	}
+	if (title_image == -1)
+	{
+		throw("Resource/images/title2.pngがありません\n");
 	}
 
 	// スプレッドシートのデータを取得
@@ -56,6 +61,7 @@ void TitleScene::Initialize()
 //更新処理
 eSceneType TitleScene::Update()
 {
+	scroll += 1;
 	//カーソル下移動
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection() == StickDirection::Down)
 	{
@@ -109,17 +115,22 @@ eSceneType TitleScene::Update()
 void TitleScene::Draw()const
 {
 	//タイトル画像の描画
-	DrawGraph(0, 0, background_image, FALSE);
+	DrawGraph(scroll % 1280 + 1280, 0, background_image, TRUE);
+	DrawGraph(scroll % 1280, 0, background_image, TRUE);
+	//DrawGraph(0, 0, background_image, FALSE);
+	DrawGraph(300, 70, title_image, TRUE);
 
 	//メニュー画像の描画
-	DrawGraph(120, 200, menu_image, TRUE);
+	DrawGraph(420, 300, menu_image, TRUE);
 
 	//カーソル画像の描画
-	DrawRotaGraph(90, 220 + menu_cursor * 40, 0.7, DX_PI / 2.0, cursor_image, TRUE);
-
+	DrawRotaGraph(430, 350 + menu_cursor * 75, 0.7, DX_PI / 0.1, cursor_image, TRUE);
+	DrawRotaGraph(800, 350 + menu_cursor * 75, 0.7, DX_PI / 0.1, cursor_image, TRUE);
 	//std::string shifted_play_count = WStringToShiftJIS(play_count);
 	//DrawFormatString(0, 0, 0xffffff, "プレイ回数: %s", shifted_play_count.c_str());
 	DrawFormatString(0, 0, 0xffffff, "プレイ回数: %d", play_count);
+
+	
 }
 
 
@@ -128,6 +139,7 @@ void TitleScene::Finalize()
 {
 	//読み込んだ画像の削除
 	DeleteGraph(background_image);
+	DeleteGraph(title_image);
 	DeleteGraph(menu_image);
 	DeleteGraph(cursor_image);
 }
