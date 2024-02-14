@@ -1,0 +1,31 @@
+Package: cpprestsdk
+Version: 2.10.18
+Port-Version: 2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 2d67e99b9778cf0249f7f87b39ea1b4169d076f7f636cf449fc9dd21e1a81226
+Description: C++11 JSON, REST, and OAuth library
+    The C++ REST SDK is a Microsoft project for cloud-based client-server communication in native code using a modern asynchronous C++ API design. This project aims to help C++ developers connect to and interact with services.
+Default-Features: default-features
+
+Package: cpprestsdk
+Feature: brotli
+Depends: brotli, cpprestsdk
+Architecture: x64-windows
+Multi-Arch: same
+Description: Brotli compression support
+
+Package: cpprestsdk
+Feature: compression
+Depends: zlib
+Architecture: x64-windows
+Multi-Arch: same
+Description: HTTP Compression support
+
+Package: cpprestsdk
+Feature: default-features
+Depends: cpprestsdk
+Architecture: x64-windows
+Multi-Arch: same
+Description: Features installed by default
