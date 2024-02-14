@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../Utility/Vector2D.h"
+#include "../Utility/Animation/Animation.h"
 #include "Barrier.h"
+
 
 class Player
 {
@@ -19,6 +21,7 @@ private:
 	float hp;           //体力
 	float fuel;         //燃料
 	Barrier* barrier;   //バリア
+	Animation anim;   //アニメーション
 
 public:
 	Player();
