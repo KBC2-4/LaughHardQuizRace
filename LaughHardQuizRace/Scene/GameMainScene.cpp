@@ -107,7 +107,9 @@ eSceneType GameMainScene::Update()
 			if (IsHitCheck(player, enemy[i]))
 			{
 				player->SetActive(false);
+				player->Draw_Qizu(false);
 				player->DecreaseHp(-50.0f);
+				enemy[i]->QuizHide(false);
 				enemy[i]->Finalize();
 				delete enemy[i];
 				enemy[i] = nullptr;

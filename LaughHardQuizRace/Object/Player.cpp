@@ -4,7 +4,7 @@
 #include "../Utility/MathUtils.h"
 
 
-Player::Player() :is_active(false), image(NULL), location(0.0f), box_size(0.0f),
+Player::Player() :is_active(false), DrawQuiz(false),image(NULL), location(0.0f), box_size(0.0f),
 angle(0.0f),speed(0.0f), gear(0), hp(0.0f), fuel(0.0f)
 {
 	// 現在の経過時間を取得
@@ -23,6 +23,7 @@ Player::~Player()
 void Player::Initialize()
 {
 	is_active = true;
+	DrawQuiz = true;
 	location = Vector2D(320.0f, 380.0f);
 	box_size = Vector2D(31.0f, 60.0f);
 	angle = 0.0f;
@@ -49,12 +50,16 @@ void Player::Update()
 	//操作不可状態であれば、自身を回転させる
 	if (!is_active)
 	{
-		angle += DX_PI_F / 24.0f;
+		/*angle += DX_PI_F / 24.0f;
 		speed = 1.0f;
 		if (angle >= DX_PI_F * 4.0f)
 		{
 			is_active = true;
 		}
+		return;*/
+	}
+	if (!DrawQuiz)
+	{
 		return;
 	}
 
@@ -121,6 +126,11 @@ void Player::DecreaseHp(float value)
 	this->hp += value;
 }
 
+//クイズ表記設定処理
+void Player::Draw_Qizu(bool flg)
+{
+	this->DrawQuiz = flg;
+}
 
 //位置情報取得処理
 Vector2D Player::GetLocation()const

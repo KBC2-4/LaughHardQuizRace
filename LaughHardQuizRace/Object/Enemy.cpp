@@ -1,7 +1,7 @@
 #include "Enemy.h"
 #include "DxLib.h"
 
-Enemy::Enemy(int type, int handle) :type(type), image(handle), speed(0.0f),
+Enemy::Enemy(int type, int handle) :Quizhide(false), type(type), image(handle), speed(0.0f),
 location(0.0f), box_size(0.0f)
 {
 
@@ -17,11 +17,13 @@ void Enemy::Initialize()
 	//出現させるX座標パターンを取得
 	const float random_y = static_cast<float>(GetRand(4) * 105 + 40);
 	//生成位置の設定
-	location = Vector2D(900.0f, random_y);
+	location = Vector2D(1200.0f, random_y);
 	//当たり判定の設定
 	box_size = Vector2D(31.0f, 60.0f);
 	//速さの設定
 	speed = static_cast<float>(this->type * 2);
+	//クイズ表記
+	Quizhide = true;
 }
 
 
@@ -29,6 +31,11 @@ void Enemy::Updata(float speed)
 {
 	//位置情報に移動量を加算する
 	location += Vector2D(this->speed + speed - 6, 0.0f);
+
+	if (!Quizhide)   //動かなくする
+	{
+		return;
+	}
 }
 
 
@@ -44,6 +51,10 @@ void Enemy::Finalize()
 
 }
 
+void Enemy::QuizHide(bool flg)
+{
+	this->Quizhide = flg;
+}
 
 //敵のタイプを取得
 int Enemy::GetType()const

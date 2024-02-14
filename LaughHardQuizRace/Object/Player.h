@@ -8,6 +8,7 @@ class Player
 private:
 	unsigned int previous_time;	// 1つ前のフレームの経過時間
 	bool is_active;     //有効常態か？
+	bool DrawQuiz;      //クイズが表示されているか？
 	int image;          //画像データ
 	Vector2D location;  //位置座標
 	Vector2D box_size;  //当たり判定の大きさ
@@ -32,6 +33,7 @@ public:
 public:
 	void SetActive(bool flg);        //有効フラグ設定
 	void DecreaseHp(float value);    //体力減少処理
+	void Draw_Qizu(bool flg);
 	Vector2D GetLocation()const;     //位置座標取得
 	Vector2D GetBoxSize()const;      //当たり判定の大きさ取得
 	float GetSpeed()const;           //速さ取得処理
