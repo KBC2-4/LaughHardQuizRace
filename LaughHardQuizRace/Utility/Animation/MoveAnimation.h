@@ -5,6 +5,7 @@
 class MoveAnimation {
 
 private:
+    int image;		// 画像ハンドル
     float startX, startY; // 開始位置
     float endX, endY;     // 終了位置
     float startScale, endScale; // 開始スケールと終了スケール
@@ -18,7 +19,8 @@ private:
     float Lerp(float start, float end, float t);
 
 public:
-    MoveAnimation(float startX, float startY, float endX, float endY, float startScale, float endScale, int totalTime);
+	MoveAnimation() = default;
+    MoveAnimation(int image, float startX, float startY, float endX, float endY, float startScale, float endScale, int totalTime);
     
     void Update(int deltaTime);
     void Draw() const;

@@ -63,7 +63,7 @@ eSceneType TitleScene::Update()
 {
 	scroll += 1;
 	//カーソル下移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection() == StickDirection::Down)
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection(20000, 20) == StickDirection::Down)
 	{
 		menu_cursor++;
 		//１番下に到達したら、一番上にする
@@ -75,7 +75,7 @@ eSceneType TitleScene::Update()
 
 
 	//カーソル上移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) || InputControl::GetLStickDirection() == StickDirection::Up)
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) || InputControl::GetLStickDirection(20000, 20) == StickDirection::Up)
 	{
 		menu_cursor--;
 		//１番上に到達したら、一番下にする

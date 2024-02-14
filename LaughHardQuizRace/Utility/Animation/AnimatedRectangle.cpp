@@ -2,8 +2,8 @@
 
 #include <DxLib.h>
 
-AnimatedRectangle::AnimatedRectangle(int duration, int height, int width, int centerY)
-    : animationDuration(duration), finalHeight(height), rectWidth(width), centerY(centerY) {
+AnimatedRectangle::AnimatedRectangle(int image, int duration, int height, int width, int centerY)
+    : image(image), animationDuration(duration), finalHeight(height), rectWidth(width), centerY(centerY) {
     StartAnimation();
 }
 
@@ -30,5 +30,7 @@ void AnimatedRectangle::Draw() const
     const int endY = centerY + (currentHeight / 2);
 
     // 長方形を描画（中心位置が基準）
-    DrawBox(640 - (rectWidth / 2), startY, 640 + (rectWidth / 2), endY, GetColor(65, 105, 225), TRUE); // 青色で長方形を描画
+    //DrawBox(640 - (rectWidth / 2), startY, 640 + (rectWidth / 2), endY, GetColor(65, 105, 225), TRUE); // 青色で長方形を描画
+    DrawRectExtendGraphF2(640 - (rectWidth / 2), startY, 640 + (rectWidth / 2), endY, 640, centerY, rectWidth, finalHeight, image, true);
+	//DrawRotaGraph(640 - (rectWidth / 2), startY, ,1.0 image, true);
 }

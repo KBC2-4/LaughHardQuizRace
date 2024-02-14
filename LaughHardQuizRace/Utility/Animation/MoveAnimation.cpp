@@ -1,7 +1,7 @@
 #include "MoveAnimation.h"
 
-MoveAnimation::MoveAnimation(float startX, float startY, float endX, float endY, float startScale, float endScale, int totalTime)
-    : startX(startX), startY(startY), endX(endX), endY(endY),
+MoveAnimation::MoveAnimation(int image, float startX, float startY, float endX, float endY, float startScale, float endScale, int totalTime)
+    : image(image), startX(startX), startY(startY), endX(endX), endY(endY),
     startScale(startScale), endScale(endScale),
     totalTime(totalTime), elapsedTime(0) {}
 
@@ -20,7 +20,9 @@ void MoveAnimation::Update(int deltaTime) {
 void MoveAnimation::Draw() const {
     // 基準サイズにスケールを適用
     const int radius = static_cast<int>(20 * currentScale);
-    DrawCircle(static_cast<int>(currentX), static_cast<int>(currentY), radius, GetColor(255, 0, 0), TRUE);
+    //DrawCircle(static_cast<int>(currentX), static_cast<int>(currentY), radius, GetColor(255, 0, 0), TRUE);
+    DrawRotaGraph(static_cast<int>(currentX), static_cast<int>(currentY), radius, 1.0, image, true);
+
 }
 
 

@@ -193,14 +193,14 @@ void Player::Movement()
 		move += Vector2D(1.0f, 0.0f);
 		angle = DX_PI_F / 18;
 	}
-	if (InputControl::GetButton(XINPUT_BUTTON_DPAD_UP) || InputControl::GetLStickDirection() == StickDirection::Up)
-	{
-		move += Vector2D(0.0f, -1.0f);
-	}
-	if (InputControl::GetButton(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection() == StickDirection::Down)
-	{
-		move += Vector2D(0.0f, 1.0f);
-	}
+	//if (InputControl::GetButton(XINPUT_BUTTON_DPAD_UP) || InputControl::GetLStickDirection() == StickDirection::Up)
+	//{
+	//	move += Vector2D(0.0f, -1.0f);
+	//}
+	//if (InputControl::GetButton(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection() == StickDirection::Down)
+	//{
+	//	move += Vector2D(0.0f, 1.0f);
+	//}
 
 	location += move;
 

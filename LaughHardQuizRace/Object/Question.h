@@ -77,10 +77,10 @@ private:
     };
 public:
     //ŠÖ”‚ğ‚±‚±‚ÅéŒ¾‚·‚é
-    Question();
-    ~Question();
-    void Update();
-    void Draw();
+    Question() = default;
+    ~Question() = default;
+    // void Update();
+    // void Draw();
 
     std::string GetQuestion(int num) { return question.at(num); }
     std::string GetAnswer(int num, bool correct) { return answer.at(correct).at(num); }
