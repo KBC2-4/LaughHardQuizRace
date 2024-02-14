@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../Utility/Vector2D.h"
+#include "../Utility/Animation/Animation.h"
 #include "Barrier.h"
+
 
 class Player
 {
@@ -20,6 +22,8 @@ private:
 	float hp;           //体力
 	float fuel;         //燃料
 	Barrier* barrier;   //バリア
+	Animation anim;   //アニメーション
+	bool is_stop = false;       //一時停止フラグ
 
 public:
 	Player();
@@ -40,10 +44,12 @@ public:
 	float GetGear()const;           //ギア取得処理
 	float GetFuel()const;            //燃料取得
 	float GetHp()const;              //体力取得
+	void IsStop(bool result);        // 一時停止処理
+
 private:
 	void Movement();                 //移動処理
 	void Acceleration();             //加速処理
-	void UpdateGear();				 // ギアチェンジ処理	
+	void UpdateGear();				 // ギアチェンジ処理
 };
 
 

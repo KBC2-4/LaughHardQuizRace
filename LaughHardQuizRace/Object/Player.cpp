@@ -4,8 +4,8 @@
 #include "../Utility/MathUtils.h"
 
 
-Player::Player() :is_active(false), DrawQuiz(false),image(NULL), location(0.0f), box_size(0.0f),
-angle(0.0f),speed(0.0f), gear(0), hp(0.0f), fuel(0.0f)
+Player::Player() :is_active(false), image(NULL), location(0.0f), box_size(0.0f), is_stop(false),
+angle(0.0f),speed(0.0f), gear(0), hp(0.0f), fuel(0.0f), anim(2000.0f, 2.0f)
 {
 	// 現在の経過時間を取得
 	previous_time = GetNowCount();
@@ -23,7 +23,6 @@ Player::~Player()
 void Player::Initialize()
 {
 	is_active = true;
-	DrawQuiz = true;
 	location = Vector2D(320.0f, 380.0f);
 	box_size = Vector2D(31.0f, 60.0f);
 	angle = 0.0f;
@@ -50,27 +49,37 @@ void Player::Update()
 	//操作不可状態であれば、自身を回転させる
 	if (!is_active)
 	{
-		/*angle += DX_PI_F / 24.0f;
-		speed = 1.0f;
+		angle += DX_PI_F / 24.0f;
+		speed = 0.2f;
 		if (angle >= DX_PI_F * 4.0f)
 		{
 			is_active = true;
 		}
-		return;*/
-	}
-	if (!DrawQuiz)
-	{
 		return;
 	}
 
 	//燃料の消費
 	fuel -= speed;
 
-	//移動処理
-	Movement();
+	if (!is_stop) {
 
-	//加減速処理
-	Acceleration();
+		//移動処理
+		Movement();
+
+		//加減速処理
+		Acceleration();
+	}
+
+	// アイドルアニメーション
+
+	 // 現在の時間を取得
+	const int currentTime = GetNowCount();
+
+	// アニメーションの更新
+	const float animationOffset = anim.GetAnimationOffset(currentTime);
+
+	// アニメーションによる位置の更新
+	location.y += animationOffset;
 
 	//バリア処理
 	//if (InputControl::GetButtonDown(XINPUT_BUTTON_B) && barrier_count > 0)
@@ -126,11 +135,6 @@ void Player::DecreaseHp(float value)
 	this->hp += value;
 }
 
-//クイズ表記設定処理
-void Player::Draw_Qizu(bool flg)
-{
-	this->DrawQuiz = flg;
-}
 
 //位置情報取得処理
 Vector2D Player::GetLocation()const
@@ -217,6 +221,11 @@ void Player::UpdateGear()
 	if (InputControl::GetButton(XINPUT_BUTTON_B) && gear > 1) {
 		gear--; // ギアダウン
 	}
+}
+
+void Player::IsStop(bool result)
+{
+	this->is_stop = result;
 }
 
 
