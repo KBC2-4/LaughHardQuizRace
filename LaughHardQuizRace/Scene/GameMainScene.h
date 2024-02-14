@@ -3,6 +3,8 @@
 #include "SceneBase.h"
 #include "../Object/Player.h"
 #include "../Object/Enemy.h"
+#include "../Object/Question.h"
+#include "../Utility/Animation/AnimatedRectangle.h"
 
 class GameMainScene:public SceneBase
 {
@@ -17,6 +19,11 @@ private:
 	int enemy_count[3];  //通り過ぎた敵カウント
 	Player* player;      //プレイヤー
 	Enemy** enemy;       //敵
+	Question question;  //問題
+
+	AnimatedRectangle animatedRect;
+
+	bool hitEnemies[10] = { false }; // 10体の敵に対する当たり判定結果を一時的に保持する配列
 
 public:
 	GameMainScene();
@@ -33,7 +40,7 @@ private:
 	//ハイスコア読み込み処理
 	void ReadHighScore();
 	//当たり判定
-	bool IsHitCheck(Player* p, Enemy* e);
+	bool IsHitCheck(Player* p, Enemy* e) const;
 	void BubbleSort(Enemy enemies[], int n) const;
 };
 

@@ -2,7 +2,7 @@
 #include "DxLib.h"
 
 Enemy::Enemy(int type, int handle) :type(type), image(handle), speed(0.0f),
-location(0.0f), box_size(0.0f)
+location(0.0f), box_size(0.0f), is_stop(false)
 {
 
 }
@@ -27,6 +27,8 @@ void Enemy::Initialize()
 
 void Enemy::Updata(float speed)
 {
+
+	if (is_stop) { return; }
 	//ˆÊ’uî•ñ‚ÉˆÚ“®—Ê‚ð‰ÁŽZ‚·‚é
 	location += Vector2D(this->speed + speed - 6, 0.0f);
 }
@@ -63,4 +65,9 @@ Vector2D Enemy::GetLocation()const
 Vector2D Enemy::GetBoxSize()const
 {
 	return box_size;
+}
+
+void Enemy::IsStop(bool result)
+{
+	this->is_stop = result;
 }
