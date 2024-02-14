@@ -19,7 +19,7 @@ private:
 	int enemy_count[3];  //通り過ぎた敵カウント
 	Player* player;      //プレイヤー
 	Enemy** enemy;       //敵
-	Question question;  //問題
+	//Question question;  //問題
 
 	AnimatedRectangle animatedRect;
 

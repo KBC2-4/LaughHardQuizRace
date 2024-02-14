@@ -15,7 +15,7 @@ private:
 	int menu_cursor;
 	int play_count;             //ƒvƒŒƒC‰ñ”
 
-	SpreadsheetClient client;
+	//SpreadsheetClient client;
 
 public:
 	TitleScene();

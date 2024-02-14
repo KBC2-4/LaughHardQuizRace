@@ -31,9 +31,9 @@ RankingData::~RankingData()
 void RankingData::Initialize()
 {
 	// スクリプトIDを設定
-	SpreadsheetClient client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB");
-	auto task = client.GetRanking();
-	data = task.get(); // 非同期タスクの結果を取得（ブロックされる）
+	//SpreadsheetClient client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB");
+	//auto task = client.GetRanking();
+	//data = task.get(); // 非同期タスクの結果を取得（ブロックされる）
 
 	//ランキングデータの読み込み
 	FILE* fp = nullptr;

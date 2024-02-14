@@ -5,7 +5,7 @@
 
 
 GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr), enemy(nullptr),
-question("Resource/dat/question.csv"), animatedRect(3000, 600, 800, 340)
+/*question("Resource/dat/question.csv"),*/ animatedRect(3000, 600, 800, 340)
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);

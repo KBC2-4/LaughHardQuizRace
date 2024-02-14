@@ -3,7 +3,7 @@
 #include "DxLib.h"
 
 TitleScene::TitleScene() :background_image(NULL), menu_image(NULL),
-cursor_image(NULL), menu_cursor(0), client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")
+cursor_image(NULL), menu_cursor(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
 {
 
 }
@@ -37,14 +37,14 @@ void TitleScene::Initialize()
 	}
 
 	// スプレッドシートのデータを取得
-	client.GetSpreadsheetData();
+	//client.GetSpreadsheetData();
 
-	// スプレッドシートにデータを書き込み
-	client.PostSpreadsheetData(L"player123", 1000);
+	//// スプレッドシートにデータを書き込み
+	//client.PostSpreadsheetData(L"player123", 1000);
 
-	const auto task = client.GetPlayCount();
-	// 非同期タスクの結果を同期的に待つ
-	play_count = task.get();
+	//const auto task = client.GetPlayCount();
+	//// 非同期タスクの結果を同期的に待つ
+	//play_count = task.get();
 
 	// 使用する文字コードを utf8 に設定
 	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_UTF8);
@@ -86,7 +86,7 @@ eSceneType TitleScene::Update()
 		{
 			case 0:
 				// プレイ回数をインクリメント
-				client.IncrementPlayCount();
+				//client.IncrementPlayCount();
 				return eSceneType::E_MAIN;
 				
 			case 1:
