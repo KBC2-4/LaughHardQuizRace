@@ -25,7 +25,7 @@ void HelpScene::Initialize()
 	//エラーチェック
 	if (Help_image == -1)
 	{
-		throw("Resource/images.Title.pngがありません\n");
+		throw("Resource/images/Help.png\n");
 	}
 
 	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);

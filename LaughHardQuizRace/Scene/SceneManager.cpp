@@ -34,7 +34,6 @@ void SceneManager::Initialize()
 
 	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
 
-	//ChangeWindowMode(TRUE);		// ウィンドウモードで起動
 	SetGraphMode(1280, 720, 32);
 
 	SetAlwaysRunFlag(true);		//常にアクティブにする
@@ -42,7 +41,7 @@ void SceneManager::Initialize()
 	ChangeFontType(DX_FONTTYPE_ANTIALIASING_4X4);		//フォントをアンチエイリアス対応にする。
 
 	//ウィンドウモードで起動
-	if (ChangeWindowMode(TRUE) != DX_CHANGESCREEN_OK)
+	if (ChangeWindowMode(FALSE) != DX_CHANGESCREEN_OK)
 	{
 		throw("ウィンドウモードで起動できませんでした");
 	}
@@ -67,14 +66,34 @@ void SceneManager::Initialize()
 //シーンマネージャー機能：更新処理
 void SceneManager::Update()
 {
+	// ウィンドウズとフルスクリーンの切り替えフラグ
+	bool is_window_mode_change = false;
+
+	// 最後にウィンドウモードが切り替わった時間（マイクロ秒）
+	LONGLONG last_window_mode_change_time = 0;
+
 	//フレーム開始時間（マイクロ秒）を取得
 	LONGLONG start_time = GetNowHiPerformanceCount();
 
 	//メインループ
 	while (ProcessMessage() != -1)
 	{
+
 		//現在時間を取得
 		LONGLONG now_time = GetNowHiPerformanceCount();
+
+		// 左ALT + Enter によりウィンドウモードとフルスクリーンの切り替え
+		if (CheckHitKey(KEY_INPUT_LALT) && CheckHitKey(KEY_INPUT_RETURN))
+		{
+			// 最後の切り替えから一定時間が経過しているか確認
+			if ((now_time - last_window_mode_change_time) >= 1000000) // 1000ミリ秒の遅延
+			{
+				is_window_mode_change = !is_window_mode_change;
+				ChangeWindowMode(is_window_mode_change);
+				last_window_mode_change_time = now_time;
+			}
+		}
+
 
 		//1フレーム当たりの時間に達したら、更新及び描画処理を行う
 		if ((now_time - start_time) >= DELTA_SECOND)
@@ -176,26 +195,26 @@ SceneBase* SceneManager::CreateScene(eSceneType scene_type)
 	//引数（シーンタイプ）によって、生成するシーンを決定する
 	switch (scene_type)
 	{
-		case eSceneType::E_TITLE:
-			return new TitleScene;
+	case eSceneType::E_TITLE:
+		return new TitleScene;
 
-		case eSceneType::E_MAIN:
-			return new GameMainScene;
+	case eSceneType::E_MAIN:
+		return new GameMainScene;
 
-		case eSceneType::E_RESULT:
-			return new ResultScene;
+	case eSceneType::E_RESULT:
+		return new ResultScene;
 
-		case eSceneType::E_HELP:
-			return new HelpScene;
+	case eSceneType::E_HELP:
+		return new HelpScene;
 
-		case eSceneType::E_RANKING_DISP:
-			return new RankingDispScene;
+	case eSceneType::E_RANKING_DISP:
+		return new RankingDispScene;
 
-		case eSceneType::E_RANKING_INPUT:
-			return new RankingInputScene;
+	case eSceneType::E_RANKING_INPUT:
+		return new RankingInputScene;
 
-		default:
-			return nullptr;
+	default:
+		return nullptr;
 
 	}
 }
