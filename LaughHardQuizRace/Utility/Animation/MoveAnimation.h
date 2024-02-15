@@ -24,6 +24,7 @@ public:
     
     void Update(int deltaTime);
     void Draw() const;
+    void Close();
 };
 
 

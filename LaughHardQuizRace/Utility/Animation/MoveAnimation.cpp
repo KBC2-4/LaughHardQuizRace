@@ -25,6 +25,13 @@ void MoveAnimation::Draw() const {
 
 }
 
+void MoveAnimation::Close()
+{
+	currentX = startX;
+	currentY = startY;
+	currentScale = startScale;
+}
+
 
 float MoveAnimation::Lerp(float start, float end, float t) {
     return start + (end - start) * t;
