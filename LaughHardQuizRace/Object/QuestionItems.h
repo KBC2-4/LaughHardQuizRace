@@ -58,7 +58,7 @@ private:
     };
     std::vector<std::vector<std::string>> answer = {
         { "幼稚園","0歳","何も起こっていない","びっくりした","髪がないから", "後ろに人が並んでいるのを確認するため", "増えることはない", "×",
-        "居間", "警察署", "閉まっているから", "インド", "先生", "大人", "白","1段目から飛び降りたから","南極","イギリス","うなぎ",
+        "居間", "警察署", "閉まっているから", " インド", "先生", "大人", "白","1段目から飛び降りたから","南極","イギリス","うなぎ",
         "○","×","×","車","0円","三つ子以上だから","いない","短い距離を走ったから","タコ","マシュマロ",
         "12","日本","万里の長城","大理石","息を吹きかける","まぐろ","○","細菌","大阪府","あゆ","沖縄"},
 
@@ -82,11 +82,10 @@ public:
     //関数をここで宣言する
     QuestionItems() = default;
     ~QuestionItems() = default;
-    // void Update();
-    // void Draw();
 
-    std::string GetQuestion(int num) { return question.at(num); }
-    std::string GetAnswer(int num, bool correct) { return answer.at(correct).at(num); }
+    std::string GetQuestion(const int num) { return question.at(num); }
+    std::string GetAnswer(const int num, const bool correct) { return answer.at(correct).at(num); }
+    int GetDifficulty(const int num) const { return difficulty.at(num); }
 
 
 

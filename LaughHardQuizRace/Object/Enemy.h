@@ -11,6 +11,7 @@ class Enemy
 	Vector2D location;    //ˆÊ’uî•ñ
 	Vector2D box_size;    //“–‚½‚è”»’è‚Ì‘å‚«‚³
 	bool is_stop = false;       //ˆê’â~ƒtƒ‰ƒO
+	float scale;		// ‰æ‘œ‚ÌŠg‘å—¦
 
 public:
 	Enemy(int type, int handle);

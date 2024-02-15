@@ -1,7 +1,7 @@
 #include "MoveAnimation.h"
 
-MoveAnimation::MoveAnimation(int image, float startX, float startY, float endX, float endY, float startScale, float endScale, int totalTime)
-	: image(image), startX(startX), startY(startY), endX(endX), endY(endY),
+MoveAnimation::MoveAnimation(int image, float startX, float startY, float endX, float endY, float startScale, float endScale, int totalTime, double angle)
+	: image(image), startX(startX), startY(startY), endX(endX), endY(endY), angle(angle),
 	startScale(startScale), endScale(endScale),opacity(1.0f),
 	totalTime(totalTime), elapsedTime(0) {}
 
@@ -19,11 +19,12 @@ void MoveAnimation::Update(int deltaTime) {
 
 void MoveAnimation::Draw() const {
 	// 基準サイズにスケールを適用
-	const int radius = static_cast<int>(20 * currentScale);
+	//const double radius = static_cast<double>(5 * currentScale);
+	const double radius = static_cast<double>(currentScale);
 	//DrawCircle(static_cast<int>(currentX), static_cast<int>(currentY), radius, GetColor(255, 0, 0), TRUE);
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, static_cast<int>(opacity * 255));
-	DrawRotaGraph(static_cast<int>(currentX), static_cast<int>(currentY), radius, 1.0, image, true);
+	DrawRotaGraph(static_cast<int>(currentX), static_cast<int>(currentY), radius, angle, image, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 }

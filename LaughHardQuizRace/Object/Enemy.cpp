@@ -2,9 +2,18 @@
 #include "DxLib.h"
 
 Enemy::Enemy(int type, int handle) :type(type), image(handle), speed(0.0f),
-location(0.0f), box_size(0.0f), is_stop(false)
+location(0.0f), box_size(0.0f), is_stop(false), scale(0.7f)
 {
+	// typeが9よりも大きい場合
+	if (this->type > 9) {
+		scale = 1.0f; // スケールを1.0fに設定
 
+		//当たり判定の設定
+		box_size = Vector2D(42.0f, 60.0f);
+
+		// スピードにtypeが9を超える比率を加える
+		speed += (this->type - 9) * (2.0f / (this->type - 9));
+	}
 }
 
 Enemy::~Enemy()
@@ -22,7 +31,8 @@ void Enemy::Initialize()
 	//当たり判定の設定
 	box_size = Vector2D(31.0f, 60.0f);
 	//速さの設定
-	speed = static_cast<float>(this->type * 2);
+	speed = 2;
+
 }
 
 
@@ -38,7 +48,7 @@ void Enemy::Updata(float speed)
 void Enemy::Draw()const
 {
 	//敵画像の描画
-	DrawRotaGraphF(location.x, location.y, 1.0f, 0.0, image, TRUE);
+	DrawRotaGraphF(location.x, location.y, scale, 0.0, image, TRUE);
 
 	// 当たり判定を描画
 	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);;

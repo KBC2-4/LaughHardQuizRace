@@ -7,9 +7,9 @@
 
 #define QUESTION_NUM 40
 
-GameMainScene::GameMainScene() :high_score(0), background_image(NULL), scroll(0), player(nullptr), answer_anim(0), idle_bgm(0), board_image(0), score(0),
+GameMainScene::GameMainScene() :high_score(0), background_image(NULL), scroll(0), player(nullptr), answer_anim(0), idle_bgm(0), board_image(0), score(0), add_score(0),
 /*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false), selectMenu(0), clear_count(0), question_count(0),
-size_anim_count(0), currentState(State::idle), difficulty(1), correct_se(0), cursor_move_se(0), wrong_se(0), enter_se(0), next_question_num(GetRand(QUESTION_NUM - 1))
+size_anim_count(0), currentState(State::idle), correct_se(0), cursor_move_se(0), wrong_se(0), enter_se(0), current_question_num(GetRand(QUESTION_NUM - 1))
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
@@ -17,10 +17,9 @@ size_anim_count(0), currentState(State::idle), difficulty(1), correct_se(0), cur
 	answer_font_handle = CreateFontToHandle("Segoe UI", 40, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 15; i++)
 	{
 		enemy_image[i] = NULL;
-		enemy_count[i] = NULL;
 	}
 }
 
@@ -55,6 +54,11 @@ GameMainScene::~GameMainScene()
 	// 画像の削除
 	DeleteGraph(background_image);
 	DeleteGraph(board_image);
+
+	for (int i = 0; i < 15; i++)
+	{
+		DeleteGraph(enemy_image[i]);
+	}
 }
 
 //初期化処理
@@ -66,8 +70,9 @@ void GameMainScene::Initialize()
 	// 画像の読み込み
 	background_image = LoadGraph("Resource/images/Scene/GameMain/background.png");
 	//barrier_image = LoadGraph(      "Resource/images/barrier.png");
-	const int result = LoadDivGraph("Resource/images/fish.png", 3, 1, 3, 120, 63,
+	const int result = LoadDivGraph("Resource/images/fish.png", 15, 3, 5, 200, 138,
 		enemy_image);
+
 
 	board_image = LoadGraph("Resource/images/Scene/GameMain/board.png");
 
@@ -128,7 +133,8 @@ void GameMainScene::Initialize()
 	question = new QuestionItems;
 
 	animatedRect = AnimatedRectangle(board_image, 3000, 600, 800, 340);
-	board = MoveAnimation(board_image, 2000, 400, 800, 400, 0.1f, 1.0f, 1000);
+	board_effect = MoveAnimation(board_image, 2000, 400, 800, 400, 0.1f * 5.0f, 1.0f * 5.0f, 1000, 1.0);
+	board = MoveAnimation(board_image, 640, 400, 640, 400, 0.1f, 1.0f, 2000);
 
 	//オブジェクトの初期化
 	player->Initialize();
@@ -212,7 +218,10 @@ eSceneType GameMainScene::Update()
 
 				time_limit += 1000 * 1;
 				clear_count++;
-				score += 50;
+
+				// スコアを加算
+				AddScore();
+
 				// SE再生
 				PlaySoundMem(correct_se, DX_PLAYTYPE_BACK, TRUE);
 
@@ -277,7 +286,8 @@ eSceneType GameMainScene::Update()
 
 			player->IsStop(false);
 			player->SetActive(true);
-			board.Close();
+			board_effect.Close();
+			//board.Close();
 
 			//敵生成
 			CreateEnemy();
@@ -305,7 +315,6 @@ eSceneType GameMainScene::Update()
 			//画面外に行ったら、敵を削除
 			if (enemy[i]->GetLocation().x <= 0.0f)
 			{
-				enemy_count[enemy[i]->GetType()]++;
 				enemy[i]->Finalize();
 				delete enemy[i];
 				enemy[i] = nullptr;
@@ -342,7 +351,8 @@ eSceneType GameMainScene::Update()
 	}
 
 	if (currentState == State::question) {
-		board.Update(16);
+		board_effect.Update(60);
+		//board.Update(60);
 	}
 
 	// Stateチェック
@@ -375,8 +385,7 @@ void GameMainScene::Draw()const
 	DrawGraph(scroll % 1280 + 1280, 0, background_image, TRUE);
 	DrawGraph(scroll % 1280, 0, background_image, TRUE);
 
-	DrawFormatString2ToHandle(770, 50, 0x4E75ED, 0xFFFFFF, font_handle_h2, "残り時間：%5d.%.3d", -time_limit / 1000, -time_limit % 1000);
-	DrawFormatString2ToHandle(50, 50, 0xFF0000, 0xFFFFFF, font_handle_h2, "スコア：%2d", score);
+
 	// 敵の描画
 	for (int i = 0; i < 2; i++)
 	{
@@ -398,7 +407,8 @@ void GameMainScene::Draw()const
 
 	if (currentState == State::question)
 	{
-		board.Draw();
+		board_effect.Draw();
+		//board.Draw();
 
 
 		{//キャンバス
@@ -428,13 +438,13 @@ void GameMainScene::Draw()const
 				0xFF0000, 0xFFFFFF, font_handle_h2, "%2d問目", question_count + 1);
 
 			//問題 描画
-			DrawExtendFormatString2ToHandle(GetDrawCenterX(question->GetQuestion(next_question_num).c_str(), font_handle_h2), canvas_y1 + 100,
+			DrawExtendFormatString2ToHandle(GetDrawCenterX(question->GetQuestion(current_question_num).c_str(), font_handle_h2), canvas_y1 + 100,
 				/*size_anim_count * 0.01 + 0.2*/1.0f, size_anim_count * 0.01 + 0.2, 0xF5A000, 0xEFBD00, font_handle_h2, "%s",
-				question->GetQuestion(next_question_num).c_str());
+				question->GetQuestion(current_question_num).c_str());
 
 			// 選択肢 描画
-			const std::string a1 = question->GetAnswer(next_question_num, answer_correct);
-			const std::string a2 = question->GetAnswer(next_question_num, !answer_correct);
+			const std::string a1 = question->GetAnswer(current_question_num, answer_correct);
+			const std::string a2 = question->GetAnswer(current_question_num, !answer_correct);
 
 			// 各選択肢のフォント
 			int a_font = font_handle_h2;
@@ -452,6 +462,11 @@ void GameMainScene::Draw()const
 				a2.c_str());
 		}
 	}
+
+
+	// HUDの描画
+	DrawFormatString2ToHandle(770, 50, 0x4E75ED, 0xFFFFFF, font_handle_h2, "残り時間：%5d.%.3d", -time_limit / 1000, -time_limit % 1000);
+	DrawFormatString2ToHandle(50, 50, 0xFF0000, 0xFFFFFF, font_handle_h2, "スコア：%2d", score);
 
 	// ボタンガイドの描画
 	DrawGuides(gamepad_guides, 505.0f, 660.0f, 5.0f, 60.0f);
@@ -512,10 +527,10 @@ void GameMainScene::Finalize()
 	fprintf(fp, "%d,\n", score);
 
 	// 避けた数と得点を保存
-	for (int i = 0; i < 3; i++)
-	{
-		fprintf(fp, "%d,\n", enemy_count[i]);
-	}
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	fprintf(fp, "%d,\n", enemy_count[i]);
+	//}
 
 	//ファイルクローズ
 	fclose(fp);
@@ -560,6 +575,27 @@ int GameMainScene::GetDrawCenterX(const char* string, int font_handle, int margi
 
 	const int w = screenX / 2 + margin - (GetDrawFormatStringWidthToHandle(font_handle, string) / 2);
 	return w;
+}
+
+void GameMainScene::AddScore()
+{
+	// 難易度に応じてscoreを増加させる
+	switch (question->GetDifficulty(current_question_num)) {
+	case 1:
+		add_score = 50; // 難易度1の場合
+		break;
+	case 2:
+		add_score = 100; // 難易度2の場合
+		break;
+	case 3:
+		add_score = 300; // 難易度3の場合
+		break;
+	default:
+		break;
+	}
+
+	// スコアに加算
+	score += add_score;
 }
 
 void GameMainScene::DrawAnswer() const
@@ -608,13 +644,18 @@ void GameMainScene::DrawAnswer() const
 		DrawLineAA(canvas_x1 - 200, canvas_y1 - 200, canvas_x1 + 200, canvas_y1 + 200, 0x4171bb, 50.0F);
 		DrawLineAA(canvas_x1 + 200, canvas_y1 - 200, canvas_x1 - 200, canvas_y1 + 200, 0x4171bb, 50.0F);
 
-		DrawStringToHandle(1000, 90, "- 5.000", 0xFF0000, font_handle_h3);
+		// 残り時間の加減算の可視化 
+		DrawStringToHandle(1000, 120, "- 5.000", 0xFF2200, font_handle_h2);
 	}
 	break;
 	case Answer::correct:		// 正解
 		// 丸を描画
 		DrawCircleAA(x, y, 200, 30, 0xd2672f, FALSE, 50.0f);
-		DrawStringToHandle(1000, 90, "+ 1.000", 0xFFFF00, font_handle_h3);
+		// 残り時間の加減算の可視化 
+		DrawStringToHandle(1000, 120, "+ 1.000", 0xFFFF00, font_handle_h2);
+
+		// 加算したスコアの可視化 
+		DrawFormatStringToHandle(200, 120, 0xFFF600, font_handle_h2, "+ %d", add_score);
 		break;
 	default:
 		break;
@@ -629,10 +670,35 @@ void GameMainScene::CreateEnemy() const
 	{
 		if (enemy[i] == nullptr)
 		{
-			const int type = GetRand(3) % 3;
+			// 難易度
+			const int difficulty = question->GetDifficulty(current_question_num);
+			// 生成するエネミーの種類
+			int type;
+
+			// 難易度に基づいてエネミーの種類を決定する
+			switch (difficulty) {
+			case 1:
+				// 難易度1の場合
+				type = GetRand(9); // 0から8までの乱数
+				break;
+			case 2:
+				// 難易度2の場合
+				type = 9 + GetRand(3); // 9から11までの乱数
+				break;
+			case 3:
+				// 難易度3の場合
+				type = 12 + GetRand(2); // 12または13の乱数
+				break;
+			default:
+				// それ以外の難易度の場合、typeは0とする
+				type = 0;
+				break;
+			}
+
+
+			//const int type = GetRand(14) % 14;
 
 			// 難易度で新しい種類のエネミーを生成する
-			//const int type = (GetRand(3) % 3) + difficulty;
 			enemy[i] = new Enemy(type, enemy_image[type]);
 			enemy[i]->Initialize();
 			break;
@@ -647,13 +713,13 @@ void GameMainScene::CreateQuestion()
 	//生徒の正誤を乱数でランダムで取得
 	answer_correct = GetRand(1);
 	//まだ出されていない問題を次に出す
-	next_question_num = GetRand(QUESTION_NUM - 1);
+	current_question_num = GetRand(QUESTION_NUM - 1);
 
-	while (std::find(question_num.begin(), question_num.end(), next_question_num) != question_num.end()) {
+	while (std::find(question_num.begin(), question_num.end(), current_question_num) != question_num.end()) {
 
-		next_question_num = GetRand(QUESTION_NUM - 1);
+		current_question_num = GetRand(QUESTION_NUM - 1);
 
-		//printfDx("next_question_num:%d", next_question_num);
+		//printfDx("current_question_num:%d", current_question_num);
 		////デバッグ
 		//for (int num : question_num) {
 		//	printfDx("[%d]", num);
@@ -666,7 +732,7 @@ void GameMainScene::CreateQuestion()
 	answer_anim = GetNowCount();
 
 	//次の問題番号をプッシュ
-	question_num.push_back(next_question_num);
+	question_num.push_back(current_question_num);
 }
 
 //ハイスコア読み込み
@@ -684,11 +750,6 @@ void GameMainScene::ReadHighScore()
 //当たり判定処理（プレイヤーと敵）
 bool GameMainScene::IsHitCheck(Player* p, Enemy* e) const
 {
-	//プレイヤーがバリアを張っていたら、当たり判定を無視する
-	//if (p->IsBarrier())
-	//{
-	//	return false;
-	//}
 
 	//敵情報がなければ、当たり判定を無視する
 	if (e == nullptr)

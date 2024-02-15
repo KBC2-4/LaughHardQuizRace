@@ -14,6 +14,7 @@ private:
     float currentX, currentY; // 現在の位置
     float currentScale;   // 現在のスケール
 	float opacity;        // 不透明度
+	double angle;         // 回転角度（ラジアン）
 
 private:
     // イージング関数（線形補間）
@@ -21,8 +22,12 @@ private:
 
 public:
 	MoveAnimation() = default;
-    MoveAnimation(int image, float startX, float startY, float endX, float endY, float startScale, float endScale, int totalTime);
-    
+    MoveAnimation(int image, float startX, float startY, float endX, float endY, float startScale, float endScale, int totalTime, double angle = 0.0);
+
+    /***
+	 * アニメーションの更新
+	 *  @param deltaTime 1フレームあたりの経過時間（ミリ秒）
+	 **/
     void Update(int deltaTime);
     void Draw() const;
     void Close();

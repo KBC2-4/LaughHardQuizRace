@@ -15,8 +15,9 @@ private:
 	int font_handle_h4;     //フォントハンドル
 	int buttonGuidFont;     //ガイド表示用フォントハンドル
 	int answer_font_handle;     //選択肢表示用フォントハンドル
-	int score;            //スコア
-	int high_score;      //ハイスコア
+	int score;            // スコア
+	int high_score;      // ハイスコア
+	int add_score;       // 追加するスコア
 	int background_image;     //背景画像
 	int idle_bgm;     //アイドル時のBGM
 	int question_bgm;     //問題画面時のBGM
@@ -27,14 +28,12 @@ private:
 
 	int board_image;     //ボード画像
 	int scroll;         //走行距離
-	int enemy_image[3];  //敵画像
-	int enemy_count[3];  //通り過ぎた敵カウント
+	int enemy_image[15];  //敵画像
 	int time_limit;      //制限時間
 	int start_count;     //ゲーム開始時のカウント
 	std::vector<guideElement> gamepad_guides; // ボタンガイド表示用
 
-	int difficulty = 1; //出題する問題の難易度
-	short next_question_num;		//次に出題する問題番号
+	short current_question_num;		//出題している問題番号
 	std::vector<short> question_num;//出題した問題番号
 	short question_count;			//何問題かのカウント
 	bool answer_correct;			//生徒の解答の正誤
@@ -69,6 +68,7 @@ private:
 
 	int selectMenu; // 問題への解答をする選択中のメニュー
 	AnimatedRectangle animatedRect;
+	MoveAnimation board_effect;
 	MoveAnimation board;
 
 	bool hitEnemies[10] = { false }; // 10体の敵に対する当たり判定結果を一時的に保持する配列
@@ -93,6 +93,8 @@ public:
 	int GetDrawCenterX(const char* string, int font_handle = 0, int margin = 0)const;
 
 private:
+	// スコアを加算する
+	void AddScore();
 	// 正誤を描画する
 	void DrawAnswer() const;
 	// エネミーを	生成
