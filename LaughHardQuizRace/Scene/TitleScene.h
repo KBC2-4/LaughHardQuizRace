@@ -3,6 +3,7 @@
 #include <string>
 #include "../Utility/SpreadsheetClient.h"
 #include "SceneBase.h"
+#include "../Object/enemyManager.h"
 
 class TitleScene:public SceneBase
 {
@@ -23,6 +24,7 @@ private:
 	int play_count;             //ƒvƒŒƒC‰ñ”
 
 	//SpreadsheetClient client;
+	EnemyManager enemyManager;
 
 public:
 	TitleScene();

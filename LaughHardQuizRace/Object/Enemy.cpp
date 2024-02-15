@@ -1,7 +1,7 @@
 #include "Enemy.h"
 #include "DxLib.h"
 
-Enemy::Enemy(int type, int handle) :type(type), image(handle), speed(0.0f),
+Enemy::Enemy(int type, int handle) :type(type), image(handle), speed_x(0.0f),
 location(0.0f), box_size(0.0f), is_stop(false), scale(0.7f)
 {
 	// typeが9よりも大きい場合
@@ -12,9 +12,10 @@ location(0.0f), box_size(0.0f), is_stop(false), scale(0.7f)
 		box_size = Vector2D(42.0f, 60.0f);
 
 		// スピードにtypeが9を超える比率を加える
-		speed += (this->type - 9) * (2.0f / (this->type - 9));
+		speed_x += (this->type - 9) * (2.0f / (this->type - 9));
 	}
 }
+	
 
 Enemy::~Enemy()
 {
@@ -31,7 +32,7 @@ void Enemy::Initialize()
 	//当たり判定の設定
 	box_size = Vector2D(31.0f, 60.0f);
 	//速さの設定
-	speed = 2;
+	speed_x = 2;
 
 }
 
@@ -41,7 +42,14 @@ void Enemy::Updata(float speed)
 
 	if (is_stop) { return; }
 	//位置情報に移動量を加算する
-	location += Vector2D(this->speed + speed - 6, 0.0f);
+	location += Vector2D(this->speed_x + speed - 6, 0.0f);
+}
+
+void Enemy::Update()
+{
+	location.x += speed_x;
+	location.y += speed_y;
+
 }
 
 
@@ -86,4 +94,15 @@ Vector2D Enemy::GetBoxSize()const
 void Enemy::IsStop(bool result)
 {
 	this->is_stop = result;
+}
+
+void Enemy::SetPosition(const float x, const float y)
+{
+	this->location.x = x;
+	this->location.y = y;
+}
+
+void Enemy::SetMovement(float speed_x, float speed_y) {
+	this->speed_x = speed_x;
+	this->speed_y = speed_y;
 }

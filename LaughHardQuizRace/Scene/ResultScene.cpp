@@ -24,6 +24,9 @@ void ResultScene::Initialize()
 		throw("Resource/images/Scene/Result/background.pngがありません\n");
 	}
 
+	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
+	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
+
 	//ゲーム結果の読み込み
 	ReadResultData();
 }
@@ -56,8 +59,8 @@ void ResultScene::Draw()const
 	//	DrawFormatString(260, 222 + (i * 21), GetColor(255, 255, 255), "%6d x%4d=%6d",
 	//		enemy_count[i], (i + 1) * 50, (i + 1) * 50 * enemy_count[i]);
 	//}
-	DrawString(600, 290, "スコア", 0xEB3229);
-	DrawFormatString(180, 290, 0xEB3229, "         =%6d", score);
+	DrawStringToHandle(600, 290, "スコア", 0xEB3229, font_handle_h2);
+	DrawFormatStringToHandle(600, 400, 0xEB3229, font_handle_h2, "%6d", score);
 }
 
 
@@ -66,6 +69,10 @@ void ResultScene::Finalize()
 {
 	//読み込んだ画像を削除
 	DeleteGraph(background_image);
+
+	// フォントの削除
+	DeleteFontToHandle(font_handle_h2);
+	DeleteFontToHandle(font_handle_h3);
 }
 
 
@@ -90,12 +97,6 @@ void ResultScene::ReadResultData()
 
 	//結果を読み込む
 	fscanf_s(fp, "%d,\n", &score);
-
-	//避けた数と得点を取得
-	for (int i = 0; i < 3; i++)
-	{
-		fscanf_s(fp, "%d,\n", &enemy_count[i]);
-	}
 
 	//ファイルクローズ
 	fclose(fp);

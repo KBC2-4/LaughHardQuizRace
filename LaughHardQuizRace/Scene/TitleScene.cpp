@@ -7,6 +7,8 @@ TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), t
 cursor_image(NULL), menu_cursor(0),cursor_move_se(0),enter_se(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
 {
 	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
+
+	enemyManager = EnemyManager();
 }
 
 TitleScene::~TitleScene()
@@ -78,6 +80,8 @@ void TitleScene::Initialize()
 
 	//BGMの再生
 	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
+
+	enemyManager.LoadImages();
 }
 
 
@@ -142,6 +146,8 @@ eSceneType TitleScene::Update()
 		}
 	}
 
+	enemyManager.Update();
+
 	//現在のシーンタイプを返す
 	return GetNowScene();
 }
@@ -154,6 +160,9 @@ void TitleScene::Draw()const
 	//タイトル画像の描画
 	DrawGraph(scroll % 1280 - 1280, 0, background_image, TRUE);
 	DrawGraph(scroll % 1280, 0, background_image, TRUE);
+
+	enemyManager.Draw();
+
 	//DrawGraph(0, 0, background_image, FALSE);
 	DrawGraph(300, 70, title_image, TRUE);
 
