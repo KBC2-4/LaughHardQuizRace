@@ -61,8 +61,7 @@ void TitleScene::Initialize()
 //更新処理
 eSceneType TitleScene::Update()
 {
-	printfDx("%d\n", scroll);
-
+	// 背景画像を無限スクロール
 	if(scroll <= 1280)
 	{
 		scroll++;
@@ -70,27 +69,23 @@ eSceneType TitleScene::Update()
 	{
 		scroll = 0;
 	}
+
+	// 左スティックの倒された方向を取得
+	const StickDirection direction = InputControl::GetLStickDirection(20000, 0);
+
 	//カーソル下移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection(20000, 20) == StickDirection::Down)
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) 
+		|| direction == StickDirection::Down)
 	{
-		menu_cursor++;
-		//１番下に到達したら、一番上にする
-		if (menu_cursor > 3)
-		{
-			menu_cursor = 0;
-		}
+		menu_cursor = (menu_cursor + 1) % 4;
 	}
 
 
 	//カーソル上移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) || InputControl::GetLStickDirection(20000, 20) == StickDirection::Up)
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) 
+		|| direction == StickDirection::Up)
 	{
-		menu_cursor--;
-		//１番上に到達したら、一番下にする
-		if (menu_cursor < 0)
-		{
-			menu_cursor = 3;
-		}
+		menu_cursor = (menu_cursor + 3) % 4;
 	}
 
 	//カーソル決定（決定した画面に遷移する）
