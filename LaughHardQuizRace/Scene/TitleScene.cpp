@@ -64,7 +64,7 @@ void TitleScene::Initialize()
 	//printfDx("PlayCount: %s\n", play_count.c_str());
 
 	//BGMÇÃçƒê∂
-	PlaySoundMem(background_sound, DX_PLAYTYPE_BACK, FALSE);
+	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
 }
 
 
