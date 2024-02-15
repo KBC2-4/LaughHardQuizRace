@@ -23,6 +23,8 @@ size_anim_count(0), currentState(State::idle), difficulty(1)
 
 GameMainScene::~GameMainScene()
 {
+	StopSoundMem(background_sound);
+	DeleteSoundMem(background_sound);
 	DeleteFontToHandle(font_handle_h2);
 	DeleteFontToHandle(font_handle_h3);
 	DeleteFontToHandle(font_handle_h4);
@@ -42,6 +44,9 @@ void GameMainScene::Initialize()
 
 	board_image = LoadGraph("Resource/images/Scene/GameMain/board.png");
 
+	//BGMの読み込み
+	background_sound = LoadSoundMem("Resource/sounds/bgm/Electric_Shine.mp3");
+
 	//エラーチェック
 	if (back_ground == -1)
 	{
@@ -56,6 +61,11 @@ void GameMainScene::Initialize()
 	if (result == -1)
 	{
 		throw("Resource/images/fish.pngがありません\n");
+	}
+
+	if (background_sound == -1)
+	{
+		throw("Resource/sounds/bgm/Electric_Shine.mp3がありません\n");
 	}
 
 	//オブジェクトの生成
@@ -75,11 +85,15 @@ void GameMainScene::Initialize()
 	}
 
 	CreateEnemy();
+
+	//BGMの再生
+	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
 }
 
 //更新処理
 eSceneType GameMainScene::Update()
 {
+
 
 	//制限時間の経過
 	time_limit = GetNowCount() - start_count;

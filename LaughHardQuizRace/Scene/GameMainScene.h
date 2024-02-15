@@ -16,6 +16,7 @@ private:
 	int score;            //スコア
 	int high_score;      //ハイスコア
 	int back_ground;     //背景画像
+	int background_sound;     //BGM
 	int board_image;     //ボード画像
 	int mileage;         //走行距離
 	int enemy_image[3];  //敵画像

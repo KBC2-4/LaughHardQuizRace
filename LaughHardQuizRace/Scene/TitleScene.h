@@ -10,6 +10,7 @@ private:
 
 private:
 	int background_image;
+	int background_sound;
 	int menu_image;
 	int title_image;
 	int back_ground;     //”wŒi‰æ‘œ
