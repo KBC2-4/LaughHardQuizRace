@@ -61,7 +61,7 @@ void TitleScene::Initialize()
 //XVˆ—
 eSceneType TitleScene::Update()
 {
-	printfDx("%d\n", scroll);
+	
 
 	if(scroll <= 1280)
 	{
