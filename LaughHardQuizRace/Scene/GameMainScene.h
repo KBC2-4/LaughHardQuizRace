@@ -34,6 +34,8 @@ private:
 	bool answer_correct;			//生徒の解答の正誤
 	short clear_count;				//正解した問題数
 
+	int answer_anim;				// 正誤のアニメーション用
+
 	int size_anim_count;
 
 	enum class Answer {

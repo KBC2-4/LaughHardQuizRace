@@ -6,7 +6,7 @@
 
 #define QUESTION_NUM 40
 
-GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr),
+GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr), answer_anim(0),
 /*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false),
 size_anim_count(0), currentState(State::idle), difficulty(1)
 {
@@ -100,7 +100,7 @@ eSceneType GameMainScene::Update()
 	//制限時間の経過
 	time_limit = GetNowCount() - start_count;
 
-	//制限時間が0以下になった場合、リザルト画面へ
+	//制限時間が0以上になった場合、リザルト画面へ
 	if (time_limit > 0) { clear_flg = true; }
 
 	if (currentState == State::question) {
@@ -141,12 +141,12 @@ eSceneType GameMainScene::Update()
 
 		//不正解だった場合、制限時間を減算させる
 		if (answer == Answer::wrong) {
-			start_count -= 1000 * 5;
+			time_limit -= 1000 * 5;
 			//PlaySoundMem(wrong_se, DX_PLAYTYPE_BACK, TRUE);
 		}
 		//正解だった場合、clear_countを加算し、スコアを加算させる
 		else if (answer == Answer::correct) {
-			start_count += 1000 * 1;
+			time_limit += 1000 * 1;
 			clear_count++;
 			score += 50;
 			//PlaySoundMem(correct_se, DX_PLAYTYPE_BACK, TRUE);
@@ -248,6 +248,17 @@ eSceneType GameMainScene::Update()
 	if (currentState == State::question) {
 		board.Update(16);
 	}
+
+	//if (currentState == State::idle) {
+
+	//	if (time_limit < answer_anim - 3000) {
+	//		//解答状況を未回答にリセット
+	//		answer = Answer::unanswered;
+
+	//		printfDx("%d\n", time_limit);
+	//	}
+	//}
+
 
 	//プレイヤーの燃料化体力が０未満なら、リザルトに遷移する
 	if (/*player->GetFuel() < 0.0f || */player->GetHp() < 0.0f)
@@ -357,6 +368,7 @@ void GameMainScene::Draw()const
 	int y = 400;
 	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, static_cast<int>(answer_anim_count));
 	//正誤表示
+
 	switch (answer)
 	{
 
@@ -535,8 +547,13 @@ void GameMainScene::CreateQuestion()
 					//解答をリセット
 
 	}
+
+	// 解答のアニメーション用に現在の経過時間を格納
+	answer_anim = time_limit;
+
 	//解答状況を未回答にリセット
 	answer = Answer::unanswered;
+
 	//次の問題番号をプッシュ
 	question_num.push_back(next_question_num);
 }
