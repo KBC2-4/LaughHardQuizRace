@@ -72,8 +72,6 @@ void TitleScene::Initialize()
 eSceneType TitleScene::Update()
 {
 
-	//カーソル下移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection() == StickDirection::Down)
 	// 背景画像を無限スクロール
 	if(scroll <= 1280)
 	{
@@ -84,7 +82,7 @@ eSceneType TitleScene::Update()
 	}
 
 	// 左スティックの倒された方向を取得
-	const StickDirection direction = InputControl::GetLStickDirection(20000, 0);
+	const StickDirection direction = InputControl::GetLStickDirection(20000, 10);
 
 	//カーソル下移動
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) 
