@@ -6,13 +6,14 @@
 
 #define QUESTION_NUM 40
 
-GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr),
+GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr), answer_anim(0),
 /*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false),
 size_anim_count(0), currentState(State::idle), difficulty(1)
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 	font_handle_h4 = CreateFontToHandle("Segoe UI", 10, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
+	answer_font_handle = CreateFontToHandle("Segoe UI", 40, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -23,9 +24,12 @@ size_anim_count(0), currentState(State::idle), difficulty(1)
 
 GameMainScene::~GameMainScene()
 {
+	StopSoundMem(background_sound);
+	DeleteSoundMem(background_sound);
 	DeleteFontToHandle(font_handle_h2);
 	DeleteFontToHandle(font_handle_h3);
 	DeleteFontToHandle(font_handle_h4);
+	DeleteFontToHandle(answer_font_handle);
 }
 
 //初期化処理
@@ -42,6 +46,9 @@ void GameMainScene::Initialize()
 
 	board_image = LoadGraph("Resource/images/Scene/GameMain/board.png");
 
+	//BGMの読み込み
+	background_sound = LoadSoundMem("Resource/sounds/bgm/Electric_Shine.mp3");
+
 	//エラーチェック
 	if (back_ground == -1)
 	{
@@ -56,6 +63,11 @@ void GameMainScene::Initialize()
 	if (result == -1)
 	{
 		throw("Resource/images/fish.pngがありません\n");
+	}
+
+	if (background_sound == -1)
+	{
+		throw("Resource/sounds/bgm/Electric_Shine.mp3がありません\n");
 	}
 
 	//オブジェクトの生成
@@ -75,11 +87,15 @@ void GameMainScene::Initialize()
 	}
 
 	CreateEnemy();
+
+	//BGMの再生
+	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
 }
 
 //更新処理
 eSceneType GameMainScene::Update()
 {
+
 
 	//制限時間の経過
 	time_limit = GetNowCount() - start_count;
@@ -106,12 +122,11 @@ eSceneType GameMainScene::Update()
 		//不正解だった場合、制限時間を減算させる
 		if (answer == Answer::wrong) {
 			start_count -= 1000 * 5;
-
 			//PlaySoundMem(wrong_se, DX_PLAYTYPE_BACK, TRUE);
 		}
 		//正解だった場合、clear_countを加算し、スコアを加算させる
 		else if (answer == Answer::correct) {
-			start_count += 1000 * 1;
+			time_limit += 1000 * 1;
 			clear_count++;
 			score += 50;
 			//PlaySoundMem(correct_se, DX_PLAYTYPE_BACK, TRUE);
@@ -239,6 +254,17 @@ eSceneType GameMainScene::Update()
 		board.Update(16);
 	}
 
+	//if (currentState == State::idle) {
+
+	//	if (time_limit < answer_anim - 3000) {
+	//		//解答状況を未回答にリセット
+	//		answer = Answer::unanswered;
+
+	//		printfDx("%d\n", time_limit);
+	//	}
+	//}
+
+
 	//プレイヤーの燃料化体力が０未満なら、リザルトに遷移する
 	if (/*player->GetFuel() < 0.0f || */player->GetHp() < 0.0f)
 	{
@@ -321,12 +347,25 @@ void GameMainScene::Draw()const
 		//}
 
 		//const bool question_num = GetRand(1);
-		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 400, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
-			0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, font_handle_h2, "%6s",
-			question->GetAnswer(next_question_num, answer_correct).c_str());
-		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 470, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
-			0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, font_handle_h2, "%6s",
-			question->GetAnswer(next_question_num, !answer_correct).c_str());
+
+		// 選択肢
+		const std::string a1 = question->GetAnswer(next_question_num, answer_correct);
+		const std::string a2 = question->GetAnswer(next_question_num, !answer_correct);
+
+		// 各選択肢のフォント
+		int a_font = font_handle_h2;
+
+		// 選択肢の文字数が10文字以上の場合
+		if (a1.length() > 10) {
+			a_font = answer_font_handle;
+		}
+
+		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 400, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
+			0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
+			a1.c_str());
+		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 470, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
+			0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
+			a2.c_str());
 	}
 
 	//正誤表示の座標
@@ -334,6 +373,7 @@ void GameMainScene::Draw()const
 	int y = 400;
 	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, static_cast<int>(answer_anim_count));
 	//正誤表示
+
 	switch (answer)
 	{
 
@@ -512,8 +552,13 @@ void GameMainScene::CreateQuestion()
 					//解答をリセット
 
 	}
+
+	// 解答のアニメーション用に現在の経過時間を格納
+	answer_anim = time_limit;
+
 	//解答状況を未回答にリセット
 	answer = Answer::unanswered;
+
 	//次の問題番号をプッシュ
 	question_num.push_back(next_question_num);
 }

@@ -13,9 +13,11 @@ private:
 	int font_handle_h2;     //フォントハンドル
 	int font_handle_h3;     //フォントハンドル
 	int font_handle_h4;     //フォントハンドル
+	int answer_font_handle;     //選択肢表示用フォントハンドル
 	int score;            //スコア
 	int high_score;      //ハイスコア
 	int back_ground;     //背景画像
+	int background_sound;     //BGM
 	int board_image;     //ボード画像
 	int mileage;         //走行距離
 	int enemy_image[3];  //敵画像
@@ -31,6 +33,8 @@ private:
 	short question_count;			//問題のカウント
 	bool answer_correct;			//生徒の解答の正誤
 	short clear_count;				//正解した問題数
+
+	int answer_anim;				// 正誤のアニメーション用
 
 	int size_anim_count;
 
