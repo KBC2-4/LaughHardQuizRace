@@ -4,14 +4,13 @@
 #include "../Utility/Guide.h"
 
 TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL), background_sound(NULL),
-cursor_image(NULL), menu_cursor(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
+cursor_image(NULL), menu_cursor(0),cursor_move_se(0),enter_se(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
 {
 	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 }
 
 TitleScene::~TitleScene()
 {
-	DeleteFontToHandle(buttonGuidFont);
 }
 
 
@@ -25,7 +24,9 @@ void TitleScene::Initialize()
 	title_image = LoadGraph("Resource/images/title2.png");
 
 	//BGMの読み込み
-	background_sound = LoadSoundMem("Resource/sounds/bgm/Electric_Shine.mp3");
+	background_sound = LoadSoundMem("Resource/sounds/bgm/title.mp3");
+	enter_se = LoadSoundMem("Resource/sounds/se/enter.mp3");
+	cursor_move_se = LoadSoundMem("Resource/sounds/se/cursor_move.mp3");
 
 	//エラーチェック
 	if (background_image == -1)
@@ -47,8 +48,19 @@ void TitleScene::Initialize()
 
 	if (background_sound == -1)
 	{
-		throw("Resource/sounds/bgm/Electric_Shine.mp3がありません\n");
+		throw("Resource/sounds/bgm/title.mp3がありません\n");
 	}
+
+	if (enter_se == -1)
+	{
+		throw("Resource/sounds/se/enter.mp3がありません\n");
+	}
+
+	if (cursor_move_se == -1)
+	{
+		throw("Resource/sounds/se/cursor_move.mp3がありません\n");
+	}
+
 	// スプレッドシートのデータを取得
 	//client.GetSpreadsheetData();
 
@@ -89,6 +101,8 @@ eSceneType TitleScene::Update()
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) 
 		|| direction == StickDirection::Down)
 	{
+		// SE再生
+		PlaySoundMem(cursor_move_se, DX_PLAYTYPE_BACK, TRUE);
 		menu_cursor = (menu_cursor + 1) % 4;
 	}
 
@@ -97,12 +111,19 @@ eSceneType TitleScene::Update()
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) 
 		|| direction == StickDirection::Up)
 	{
+		// SE再生
+		PlaySoundMem(cursor_move_se, DX_PLAYTYPE_BACK, TRUE);
 		menu_cursor = (menu_cursor + 3) % 4;
 	}
 
 	//カーソル決定（決定した画面に遷移する）
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_A))
 	{
+		// SE再生
+		PlaySoundMem(enter_se, DX_PLAYTYPE_BACK, TRUE);
+		//SEが鳴り終わってから画面推移する。
+		while (CheckSoundMem(enter_se)) {}
+
 		switch (menu_cursor)
 		{
 			case 0:
@@ -166,11 +187,17 @@ void TitleScene::Finalize()
 	StopSoundMem(background_sound);
 	DeleteSoundMem(background_sound);
 
+	DeleteSoundMem(enter_se);
+	DeleteSoundMem(cursor_move_se);
+
+	DeleteFontToHandle(buttonGuidFont);
+
 	//読み込んだ画像の削除
 	DeleteGraph(background_image);
 	DeleteGraph(title_image);
 	DeleteGraph(menu_image);
 	DeleteGraph(cursor_image);
+
 }
 
 

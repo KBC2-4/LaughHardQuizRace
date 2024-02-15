@@ -17,8 +17,14 @@ private:
 	int answer_font_handle;     //選択肢表示用フォントハンドル
 	int score;            //スコア
 	int high_score;      //ハイスコア
-	int back_ground;     //背景画像
-	int background_sound;     //BGM
+	int background_image;     //背景画像
+	int idle_bgm;     //アイドル時のBGM
+	int question_bgm;     //問題画面時のBGM
+	int wrong_se;        //不正解 音声ハンドル
+	int correct_se;      //正解 音声ハンドル
+	int cursor_move_se;       //カーソル移動 音声ハンドル
+	int enter_se;        //決定 音声ハンドル
+
 	int board_image;     //ボード画像
 	int scroll;         //走行距離
 	int enemy_image[3];  //敵画像
@@ -30,8 +36,7 @@ private:
 	int difficulty = 1; //出題する問題の難易度
 	short next_question_num;		//次に出題する問題番号
 	std::vector<short> question_num;//出題した問題番号
-	bool next_question;				//次の問題へ移行するフラグ
-	short question_count;			//問題のカウント
+	short question_count;			//何問題かのカウント
 	bool answer_correct;			//生徒の解答の正誤
 	short clear_count;				//正解した問題数
 

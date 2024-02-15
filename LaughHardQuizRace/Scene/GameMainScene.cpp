@@ -7,9 +7,9 @@
 
 #define QUESTION_NUM 40
 
-GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), scroll(0), player(nullptr), answer_anim(0), background_sound(0), board_image(0), score(0),
-/*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false), selectMenu(0), clear_count(0),
-size_anim_count(0), currentState(State::idle), difficulty(1)
+GameMainScene::GameMainScene() :high_score(0), background_image(NULL), scroll(0), player(nullptr), answer_anim(0), idle_bgm(0), board_image(0), score(0),
+/*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false), selectMenu(0), clear_count(0), question_count(0),
+size_anim_count(0), currentState(State::idle), difficulty(1), correct_se(0), cursor_move_se(0), wrong_se(0), enter_se(0), next_question_num(GetRand(QUESTION_NUM - 1))
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
@@ -26,9 +26,24 @@ size_anim_count(0), currentState(State::idle), difficulty(1)
 
 GameMainScene::~GameMainScene()
 {
-	// BGMを停止し、削除
-	StopSoundMem(background_sound);
-	DeleteSoundMem(background_sound);
+	// BGMが再生されている場合、停止し削除
+	if(CheckSoundMem(idle_bgm) == 1)
+	{
+		StopSoundMem(idle_bgm);
+	}
+	DeleteSoundMem(idle_bgm);
+
+	// BGMが再生されている場合、停止し削除
+	if (CheckSoundMem(question_bgm) == 1)
+	{
+		StopSoundMem(question_bgm);
+	}
+	DeleteSoundMem(question_bgm);
+
+	DeleteSoundMem(enter_se);
+	DeleteSoundMem(cursor_move_se);
+	DeleteSoundMem(wrong_se);
+	DeleteSoundMem(correct_se);
 
 	// フォントの削除
 	DeleteFontToHandle(font_handle_h2);
@@ -38,29 +53,36 @@ GameMainScene::~GameMainScene()
 	DeleteFontToHandle(buttonGuidFont);
 
 	// 画像の削除
-	DeleteGraph(back_ground);
+	DeleteGraph(background_image);
 	DeleteGraph(board_image);
 }
 
 //初期化処理
 void GameMainScene::Initialize()
 {
-	//高得点値を読み込む
+	// 高得点値を読み込む
 	ReadHighScore();
 
-	//画像の読み込み
-	back_ground = LoadGraph("Resource/images/Scene/GameMain/background.png");
+	// 画像の読み込み
+	background_image = LoadGraph("Resource/images/Scene/GameMain/background.png");
 	//barrier_image = LoadGraph(      "Resource/images/barrier.png");
 	const int result = LoadDivGraph("Resource/images/fish.png", 3, 1, 3, 120, 63,
 		enemy_image);
 
 	board_image = LoadGraph("Resource/images/Scene/GameMain/board.png");
 
-	//BGMの読み込み
-	background_sound = LoadSoundMem("Resource/sounds/bgm/Electric_Shine.mp3");
+	// BGMの読み込み
+	idle_bgm = LoadSoundMem("Resource/sounds/bgm/idle_time.mp3");
+	question_bgm = LoadSoundMem("Resource/sounds/bgm/question_time.mp3");
+
+	// SEの読み込み
+	enter_se = LoadSoundMem("Resource/sounds/se/enter.mp3");
+	cursor_move_se = LoadSoundMem("Resource/sounds/se/cursor_move.mp3");
+	wrong_se = LoadSoundMem("Resource/sounds/se/wrong.mp3");
+	correct_se = LoadSoundMem("Resource/sounds/se/correct.mp3");
 
 	//エラーチェック
-	if (back_ground == -1)
+	if (background_image == -1)
 	{
 		throw("Resource/images/Scene/GameMain/background.pngがありません\n");
 	}
@@ -75,9 +97,29 @@ void GameMainScene::Initialize()
 		throw("Resource/images/fish.pngがありません\n");
 	}
 
-	if (background_sound == -1)
+	if (idle_bgm == -1)
 	{
-		throw("Resource/sounds/bgm/Electric_Shine.mp3がありません\n");
+		throw("Resource/sounds/bgm/idle_time.mp3がありません\n");
+	}
+
+	if (enter_se == -1)
+	{
+		throw("Resource/sounds/se/enter.mp3がありません\n");
+	}
+
+	if (cursor_move_se == -1)
+	{
+		throw("Resource/sounds/se/cursor_move.mp3がありません\n");
+	}
+
+	if (wrong_se == -1)
+	{
+		throw("Resource/sounds/se/wrong.mp3がありません\n");
+	}
+
+	if (correct_se == -1)
+	{
+		throw("Resource/sounds/se/correct.mp3がありません\n");
 	}
 
 	//オブジェクトの生成
@@ -99,7 +141,7 @@ void GameMainScene::Initialize()
 	CreateEnemy();
 
 	//BGMの再生
-	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
+	PlaySoundMem(idle_bgm, DX_PLAYTYPE_LOOP, FALSE);
 
 	// ガイド表示を設定
 	gamepad_guides = {
@@ -129,12 +171,16 @@ eSceneType GameMainScene::Update()
 		if ((InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) || direction == StickDirection::Up)
 			|| (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || direction == StickDirection::Down))
 		{
+			// SE再生
+			PlaySoundMem(cursor_move_se, DX_PLAYTYPE_BACK, TRUE);
 			selectMenu = (selectMenu + 1) % 2;
 		}
 
 		// Aボタンを押した時
 		if (InputControl::GetButtonDown(XINPUT_BUTTON_A)) {
 
+			// SE再生
+			PlaySoundMem(enter_se, DX_PLAYTYPE_BACK, TRUE);
 
 			//解答状況を未回答にリセット
 			answer = Answer::unanswered;
@@ -153,10 +199,13 @@ eSceneType GameMainScene::Update()
 				player->SetActive(false);
 			}
 
+
+
 			//不正解だった場合、制限時間を減算させる
 			if (answer == Answer::wrong) {
 				start_count -= 1000 * 5;
-				//PlaySoundMem(wrong_se, DX_PLAYTYPE_BACK, TRUE);
+				// SE再生
+				PlaySoundMem(wrong_se, DX_PLAYTYPE_BACK, TRUE);
 			}
 			//正解だった場合、clear_countを加算し、スコアを加算させる
 			else if (answer == Answer::correct) {
@@ -164,15 +213,23 @@ eSceneType GameMainScene::Update()
 				time_limit += 1000 * 1;
 				clear_count++;
 				score += 50;
-				//PlaySoundMem(correct_se, DX_PLAYTYPE_BACK, TRUE);
-			}
+				// SE再生
+				PlaySoundMem(correct_se, DX_PLAYTYPE_BACK, TRUE);
 
-			next_question = true;
+			}
 
 			selectMenu = 0;
 
 			// 問題生成
 			CreateQuestion();
+
+			// question_bgmが再生中の場合、停止
+			if (CheckSoundMem(question_bgm) == 1)
+			{
+				StopSoundMem(question_bgm);
+			}
+			//BGMの再生
+			PlaySoundMem(idle_bgm, DX_PLAYTYPE_LOOP, FALSE);
 
 			// ガイド表示を更新
 			gamepad_guides = {
@@ -245,7 +302,7 @@ eSceneType GameMainScene::Update()
 		{
 			enemy[i]->Updata(player->GetSpeed());
 
-			//画面外に行ったら、敵を削除してスコア加算
+			//画面外に行ったら、敵を削除
 			if (enemy[i]->GetLocation().x <= 0.0f)
 			{
 				enemy_count[enemy[i]->GetType()]++;
@@ -258,6 +315,15 @@ eSceneType GameMainScene::Update()
 			// 当たり判定の結果を配列に保持
 			hitEnemies[i] = IsHitCheck(player, enemy[i]);
 			if (hitEnemies[i]) {
+
+				// idle_bgmが再生中の場合、停止
+				if (CheckSoundMem(idle_bgm) == 1)
+				{
+					StopSoundMem(idle_bgm);
+				}
+				//BGMの再生
+				PlaySoundMem(question_bgm, DX_PLAYTYPE_LOOP, TRUE);
+				
 
 				// ガイド表示を更新
 				gamepad_guides = {
@@ -306,8 +372,8 @@ eSceneType GameMainScene::Update()
 void GameMainScene::Draw()const
 {
 	// 背景画像の描画
-	DrawGraph(scroll % 1280 + 1280, 0, back_ground, TRUE);
-	DrawGraph(scroll % 1280, 0, back_ground, TRUE);
+	DrawGraph(scroll % 1280 + 1280, 0, background_image, TRUE);
+	DrawGraph(scroll % 1280, 0, background_image, TRUE);
 
 	DrawFormatString2ToHandle(770, 50, 0x4E75ED, 0xFFFFFF, font_handle_h2, "残り時間：%5d.%.3d", -time_limit / 1000, -time_limit % 1000);
 	DrawFormatString2ToHandle(50, 50, 0xFF0000, 0xFFFFFF, font_handle_h2, "スコア：%2d", score);
@@ -576,7 +642,6 @@ void GameMainScene::CreateEnemy() const
 
 void GameMainScene::CreateQuestion()
 {
-	next_question = false;
 	//問題のカウントを加算
 	++question_count;
 	//生徒の正誤を乱数でランダムで取得
