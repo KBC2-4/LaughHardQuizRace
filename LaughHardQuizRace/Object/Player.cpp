@@ -24,7 +24,7 @@ void Player::Initialize()
 {
 	is_active = true;
 	location = Vector2D(320.0f, 380.0f);
-	box_size = Vector2D(31.0f, 60.0f);
+	box_size = Vector2D(140.0f, 200.0f);
 	angle = 0.0f;
 	speed = 1.0f;
 	gear = 0;
@@ -110,6 +110,10 @@ void Player::Draw()
 	//ÉvÉåÉCÉÑÅ[âÊëúÇÃï`âÊ
 	DrawRotaGraphF(location.x, location.y, 1.0f, angle, image, TRUE);
 
+	// ìñÇΩÇËîªíËÇï`âÊ
+	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);;
+	//DrawBoxAA(location.x - box_size.x / 2, location.y - box_size.y / 2, location.x + box_size.x / 2, location.y + box_size.y / 2, GetColor(255, 0, 0), TRUE, -1);
+	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 

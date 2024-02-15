@@ -85,7 +85,11 @@ eSceneType GameMainScene::Update()
 	time_limit = GetNowCount() - start_count;
 
 	//制限時間が0以下になった場合、リザルト画面へ
-	if (time_limit > 0) { clear_flg = true; }
+	if (time_limit > 0)
+	{
+		clear_flg = true;
+		return eSceneType::E_RESULT;
+	}
 
 	if (currentState == State::question) {
 
@@ -98,34 +102,11 @@ eSceneType GameMainScene::Update()
 			selectMenu = (selectMenu + 1) % 2;
 		}
 
-		if (InputControl::GetButtonDown(XINPUT_BUTTON_A)) {
-
-			// ステートを解答状態に変更
-			SetState(State::answer);
-
-			if (answer_correct == selectMenu)
-			{
-				answer = Answer::correct;
-			}
-			else
-			{
-				answer = Answer::wrong;
-			}
-		}
-
-		/*if (InputControl::GetButtonDown(XINPUT_BUTTON_A)) {
-			if (answer_correct == 0) { answer = GameMainScene::Answer::wrong; }
-			else { answer = Answer::correct; }
-		}
-		else if (InputControl::GetButtonDown(XINPUT_BUTTON_B)) {
-			if (answer_correct == 1) { answer = GameMainScene::Answer::wrong; }
-			else { answer = Answer::correct; }
-		}*/
-
 
 		//不正解だった場合、制限時間を減算させる
 		if (answer == Answer::wrong) {
 			start_count -= 1000 * 5;
+
 			//PlaySoundMem(wrong_se, DX_PLAYTYPE_BACK, TRUE);
 		}
 		//正解だった場合、clear_countを加算し、スコアを加算させる
@@ -137,8 +118,22 @@ eSceneType GameMainScene::Update()
 		}
 
 		//BボタンまたはAボタンを押した時
-		if ((InputControl::GetButtonDown(XINPUT_BUTTON_A))
-			|| InputControl::GetButtonDown(XINPUT_BUTTON_B)) {
+		if (InputControl::GetButtonDown(XINPUT_BUTTON_A)) {
+
+			// ステートを解答状態に変更
+			SetState(State::answer);
+
+			if (answer_correct == selectMenu)
+			{	// 正解
+				answer = Answer::correct;
+			}
+			else
+			{	// 不正解
+
+				answer = Answer::wrong;
+				player->SetActive(false);
+			}
+
 			next_question = true;
 
 			selectMenu = 0;
@@ -165,6 +160,18 @@ eSceneType GameMainScene::Update()
 
 		// 待機から問題への処理
 		if (previousState == State::idle && currentState == State::question) {
+
+
+			// 当たったエネミーを削除
+			for (int i = 0; i < 2; i++)
+			{
+				if (hitEnemies[i]) {
+
+					enemy[i]->Finalize();
+					delete enemy[i];
+					enemy[i] = nullptr;
+				}
+			}
 
 		}
 
@@ -217,14 +224,13 @@ eSceneType GameMainScene::Update()
 			hitEnemies[i] = IsHitCheck(player, enemy[i]);
 			if (hitEnemies[i]) {
 
+
+				// エネミーに当たった場合、ステートを問題に変更
 				SetState(State::question);
+
+				// プレイヤーの動きを無効化
 				player->IsStop(true);
 				enemy[i]->IsStop(true);
-				player->SetActive(false);
-
-				enemy[i]->Finalize();
-				delete enemy[i];
-				enemy[i] = nullptr;
 			}
 		}
 	}
