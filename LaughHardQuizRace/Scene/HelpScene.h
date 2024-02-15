@@ -5,8 +5,10 @@
 class HelpScene:public SceneBase
 {
 private:
-	int background_image; //”wŒi‰æ‘œ
-
+	int Help_image; //”wŒi‰æ‘œ
+	int background_image;
+	int scroll;
+	int background_sound;
 public:
 	HelpScene();
 	virtual ~HelpScene();
