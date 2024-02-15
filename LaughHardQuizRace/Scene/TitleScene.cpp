@@ -1,16 +1,17 @@
 #include "TitleScene.h"
 #include "../Utility/InputControl.h"
 #include "DxLib.h"
+#include "../Utility/Guide.h"
 
 TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL), background_sound(NULL),
 cursor_image(NULL), menu_cursor(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
 {
-
+	guid_font = CreateFontToHandle("メイリオ", 60, 1, DX_FONTTYPE_ANTIALIASING_EDGE_4X4);
 }
 
 TitleScene::~TitleScene()
 {
-
+	DeleteFontToHandle(guid_font);
 }
 
 
@@ -64,7 +65,7 @@ void TitleScene::Initialize()
 	//printfDx("PlayCount: %s\n", play_count.c_str());
 
 	//BGMの再生
-	PlaySoundMem(background_sound, DX_PLAYTYPE_BACK, FALSE);
+	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
 }
 
 
@@ -128,6 +129,7 @@ eSceneType TitleScene::Update()
 //描画処理
 void TitleScene::Draw()const
 {
+
 	//タイトル画像の描画
 	DrawGraph(scroll % 1280 - 1280, 0, background_image, TRUE);
 	DrawGraph(scroll % 1280, 0, background_image, TRUE);
@@ -144,7 +146,12 @@ void TitleScene::Draw()const
 	//DrawFormatString(0, 0, 0xffffff, "プレイ回数: %s", shifted_play_count.c_str());
 	DrawFormatString(0, 0, 0xffffff, "プレイ回数: %d", play_count);
 
-	
+	const std::vector<guideElement> gamepadGuides = {
+	guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::DYNAMIC_CIRCLE,
+			 guid_font, 0xFFFFFF, 0xEBE146,
+			 0xEB3229, 0xFFFFFF, 10, 200.0f, 30.0f, 20.0f, 5.0f),
+	};
+	DrawGuides(gamepadGuides, 505.0f, 640.0f, 5.0f, 60.0f);
 }
 
 

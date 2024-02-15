@@ -9,6 +9,7 @@ class TitleScene:public SceneBase
 private:
 
 private:
+	int guid_font;     //フォントハンドル
 	int background_image;
 	int background_sound;
 	int menu_image;
