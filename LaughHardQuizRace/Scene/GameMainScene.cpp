@@ -13,6 +13,7 @@ size_anim_count(0), currentState(State::idle), difficulty(1)
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 	font_handle_h4 = CreateFontToHandle("Segoe UI", 10, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
+	answer_font_handle = CreateFontToHandle("Segoe UI", 40, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -28,6 +29,7 @@ GameMainScene::~GameMainScene()
 	DeleteFontToHandle(font_handle_h2);
 	DeleteFontToHandle(font_handle_h3);
 	DeleteFontToHandle(font_handle_h4);
+	DeleteFontToHandle(answer_font_handle);
 }
 
 //初期化処理
@@ -329,12 +331,25 @@ void GameMainScene::Draw()const
 		//}
 
 		//const bool question_num = GetRand(1);
-		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 400, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
-			0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, font_handle_h2, "%6s",
-			question->GetAnswer(next_question_num, answer_correct).c_str());
-		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 470, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
-			0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, font_handle_h2, "%6s",
-			question->GetAnswer(next_question_num, !answer_correct).c_str());
+
+		// 選択肢
+		const std::string a1 = question->GetAnswer(next_question_num, answer_correct);
+		const std::string a2 = question->GetAnswer(next_question_num, !answer_correct);
+
+		// 各選択肢のフォント
+		int a_font = font_handle_h2;
+
+		// 選択肢の文字数が10文字以上の場合
+		if (a1.length() > 10) {
+			a_font = answer_font_handle;
+		}
+
+		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 400, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
+			0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
+			a1.c_str());
+		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 470, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
+			0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
+			a2.c_str());
 	}
 
 	//正誤表示の座標

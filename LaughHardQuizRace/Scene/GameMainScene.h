@@ -13,6 +13,7 @@ private:
 	int font_handle_h2;     //フォントハンドル
 	int font_handle_h3;     //フォントハンドル
 	int font_handle_h4;     //フォントハンドル
+	int answer_font_handle;     //選択肢表示用フォントハンドル
 	int score;            //スコア
 	int high_score;      //ハイスコア
 	int back_ground;     //背景画像
