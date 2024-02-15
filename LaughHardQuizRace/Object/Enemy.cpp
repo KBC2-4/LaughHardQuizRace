@@ -39,6 +39,11 @@ void Enemy::Draw()const
 {
 	//“G‰æ‘œ‚Ì•`‰æ
 	DrawRotaGraphF(location.x, location.y, 1.0f, 0.0, image, TRUE);
+
+	// “–‚½‚è”»’è‚ð•`‰æ
+	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);;
+	//DrawBoxAA(location.x - box_size.x / 2, location.y - box_size.y / 2, location.x + box_size.x / 2, location.y + box_size.y / 2, GetColor(255, 0, 0), TRUE, -1);
+	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 

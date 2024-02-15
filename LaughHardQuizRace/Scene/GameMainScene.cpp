@@ -6,7 +6,7 @@
 
 #define QUESTION_NUM 40
 
-GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr),
+GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr), answer_anim(0),
 /*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false),
 size_anim_count(0), currentState(State::idle), difficulty(1)
 {
@@ -101,7 +101,11 @@ eSceneType GameMainScene::Update()
 	time_limit = GetNowCount() - start_count;
 
 	//制限時間が0以下になった場合、リザルト画面へ
-	if (time_limit > 0) { clear_flg = true; }
+	if (time_limit > 0)
+	{
+		clear_flg = true;
+		return eSceneType::E_RESULT;
+	}
 
 	if (currentState == State::question) {
 
@@ -114,30 +118,6 @@ eSceneType GameMainScene::Update()
 			selectMenu = (selectMenu + 1) % 2;
 		}
 
-		if (InputControl::GetButtonDown(XINPUT_BUTTON_A)) {
-
-			// ステートを解答状態に変更
-			SetState(State::answer);
-
-			if (answer_correct == selectMenu)
-			{
-				answer = Answer::correct;
-			}
-			else
-			{
-				answer = Answer::wrong;
-			}
-		}
-
-		/*if (InputControl::GetButtonDown(XINPUT_BUTTON_A)) {
-			if (answer_correct == 0) { answer = GameMainScene::Answer::wrong; }
-			else { answer = Answer::correct; }
-		}
-		else if (InputControl::GetButtonDown(XINPUT_BUTTON_B)) {
-			if (answer_correct == 1) { answer = GameMainScene::Answer::wrong; }
-			else { answer = Answer::correct; }
-		}*/
-
 
 		//不正解だった場合、制限時間を減算させる
 		if (answer == Answer::wrong) {
@@ -146,15 +126,29 @@ eSceneType GameMainScene::Update()
 		}
 		//正解だった場合、clear_countを加算し、スコアを加算させる
 		else if (answer == Answer::correct) {
-			start_count += 1000 * 1;
+			time_limit += 1000 * 1;
 			clear_count++;
 			score += 50;
 			//PlaySoundMem(correct_se, DX_PLAYTYPE_BACK, TRUE);
 		}
 
 		//BボタンまたはAボタンを押した時
-		if ((InputControl::GetButtonDown(XINPUT_BUTTON_A))
-			|| InputControl::GetButtonDown(XINPUT_BUTTON_B)) {
+		if (InputControl::GetButtonDown(XINPUT_BUTTON_A)) {
+
+			// ステートを解答状態に変更
+			SetState(State::answer);
+
+			if (answer_correct == selectMenu)
+			{	// 正解
+				answer = Answer::correct;
+			}
+			else
+			{	// 不正解
+
+				answer = Answer::wrong;
+				player->SetActive(false);
+			}
+
 			next_question = true;
 
 			selectMenu = 0;
@@ -181,6 +175,18 @@ eSceneType GameMainScene::Update()
 
 		// 待機から問題への処理
 		if (previousState == State::idle && currentState == State::question) {
+
+
+			// 当たったエネミーを削除
+			for (int i = 0; i < 2; i++)
+			{
+				if (hitEnemies[i]) {
+
+					enemy[i]->Finalize();
+					delete enemy[i];
+					enemy[i] = nullptr;
+				}
+			}
 
 		}
 
@@ -233,14 +239,13 @@ eSceneType GameMainScene::Update()
 			hitEnemies[i] = IsHitCheck(player, enemy[i]);
 			if (hitEnemies[i]) {
 
+
+				// エネミーに当たった場合、ステートを問題に変更
 				SetState(State::question);
+
+				// プレイヤーの動きを無効化
 				player->IsStop(true);
 				enemy[i]->IsStop(true);
-				player->SetActive(false);
-
-				enemy[i]->Finalize();
-				delete enemy[i];
-				enemy[i] = nullptr;
 			}
 		}
 	}
@@ -248,6 +253,17 @@ eSceneType GameMainScene::Update()
 	if (currentState == State::question) {
 		board.Update(16);
 	}
+
+	//if (currentState == State::idle) {
+
+	//	if (time_limit < answer_anim - 3000) {
+	//		//解答状況を未回答にリセット
+	//		answer = Answer::unanswered;
+
+	//		printfDx("%d\n", time_limit);
+	//	}
+	//}
+
 
 	//プレイヤーの燃料化体力が０未満なら、リザルトに遷移する
 	if (/*player->GetFuel() < 0.0f || */player->GetHp() < 0.0f)
@@ -357,6 +373,7 @@ void GameMainScene::Draw()const
 	int y = 400;
 	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, static_cast<int>(answer_anim_count));
 	//正誤表示
+
 	switch (answer)
 	{
 
@@ -535,8 +552,13 @@ void GameMainScene::CreateQuestion()
 					//解答をリセット
 
 	}
+
+	// 解答のアニメーション用に現在の経過時間を格納
+	answer_anim = time_limit;
+
 	//解答状況を未回答にリセット
 	answer = Answer::unanswered;
+
 	//次の問題番号をプッシュ
 	question_num.push_back(next_question_num);
 }
