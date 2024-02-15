@@ -28,7 +28,7 @@ void HelpScene::Initialize()
 		throw("Resource/images.Title.png‚ª‚ ‚è‚Ü‚¹‚ñ\n");
 	}
 
-	PlaySoundMem(background_sound, DX_PLAYTYPE_BACK, FALSE);
+	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
 }
 
 
