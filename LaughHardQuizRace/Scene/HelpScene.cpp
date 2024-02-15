@@ -1,6 +1,6 @@
-#include "HelpScene.h"
 #include "../Utility/InputControl.h"
 #include "DxLib.h"
+#include "HelpScene.h"
 
 HelpScene::HelpScene() :Help_image(NULL),background_image(NULL),scroll(0)
 {

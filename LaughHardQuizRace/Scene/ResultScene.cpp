@@ -1,7 +1,7 @@
+#include "DxLib.h"
+#include "../Utility/InputControl.h"
 #include "ResultScene.h"
 #include "../Object/RankingData.h"
-#include "../Utility/InputControl.h"
-#include "DxLib.h"
 
 ResultScene::ResultScene() :background_image(0), score(0)
 {

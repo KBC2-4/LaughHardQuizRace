@@ -12,6 +12,7 @@ enum class StickDirection {
 };
 
 //“ü—ÍŠÇ—‹@”\
+
 class InputControl
 {
 private:

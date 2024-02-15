@@ -1,6 +1,6 @@
+#include "DxLib.h"
 #include "RankingInputScene.h"
 #include "../Utility/InputControl.h"
-#include "DxLib.h"
 
 RankingInputScene::RankingInputScene() :backgrouond_image(NULL),
 ranking(nullptr), score(0), name_num(0), cursor_x(0), cursor_y(0)
