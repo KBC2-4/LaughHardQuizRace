@@ -329,12 +329,25 @@ void GameMainScene::Draw()const
 		//}
 
 		//const bool question_num = GetRand(1);
-		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 400, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
+
+		// 選択肢
+		const std::string a1 = question->GetAnswer(next_question_num, answer_correct);
+		const std::string a2 = question->GetAnswer(next_question_num, !answer_correct);
+
+		// 各選択肢のY座標
+		int a_y = 400;
+
+		// 選択肢の文字数が10文字以上の場合
+		if (a1.length() > 10) {
+			a_y = 460;
+		}
+
+		DrawExtendFormatString2ToHandle(canvas_x1 + 30, a_y, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
 			0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, font_handle_h2, "%6s",
-			question->GetAnswer(next_question_num, answer_correct).c_str());
-		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 470, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
+			a1.c_str());
+		DrawExtendFormatString2ToHandle(canvas_x1 + 30, a_y + 70, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
 			0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, font_handle_h2, "%6s",
-			question->GetAnswer(next_question_num, !answer_correct).c_str());
+			a2.c_str());
 	}
 
 	//正誤表示の座標
