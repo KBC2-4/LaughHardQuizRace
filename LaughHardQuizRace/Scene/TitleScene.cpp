@@ -2,7 +2,7 @@
 #include "../Utility/InputControl.h"
 #include "DxLib.h"
 
-TitleScene::TitcleScene() :background_image(NULL), menu_image(NULL),title_image(NULL),scroll(0),
+TitleScene::TitleScene() :background_image(NULL), menu_image(NULL),title_image(NULL),scroll(0),
 cursor_image(NULL), menu_cursor(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
 {
 
@@ -10,7 +10,7 @@ cursor_image(NULL), menu_cursor(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8S
 
 TitleScene::~TitleScene()
 {
-	scroll
+
 }
 
 
