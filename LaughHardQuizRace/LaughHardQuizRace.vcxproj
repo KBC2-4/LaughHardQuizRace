@@ -158,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Object\Question.h" />
+    <ClInclude Include="Object\QuestionItems.h" />
     <ClInclude Include="Scene\HelpScene.h" />
     <ClInclude Include="Scene\RankingDispScene.h" />
     <ClInclude Include="Scene\RankingInputScene.h" />
