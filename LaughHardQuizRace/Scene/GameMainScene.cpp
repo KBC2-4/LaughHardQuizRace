@@ -178,6 +178,7 @@ eSceneType GameMainScene::Update()
 
 			player->IsStop(false);
 			player->SetActive(true);
+			board.Close();
 
 			//“G¶¬
 			CreateEnemy();
