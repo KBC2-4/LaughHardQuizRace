@@ -10,7 +10,7 @@
 //	int difficultyLevel;			// 難易度レベル（1～5）
 //};
 //
-class Question
+class QuestionItems
 {
 private:
     //クラス内で使う変数
@@ -67,6 +67,9 @@ private:
         "?","〇","〇","ドアの前","200円","本当は兄弟じゃないから","ワカメちゃん","車に乗っていたから","くじら","チョコレート",
         "60","中国","ナイル川","貝","揉む","たい","?","ウイルス","神奈川県","さけ"}
     };
+
+
+    // 難易度
     std::vector<int> difficulty = {
          1 , 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 2,2,2,2,2,2,
@@ -76,8 +79,8 @@ private:
 
 public:
     //関数をここで宣言する
-    Question() = default;
-    ~Question() = default;
+    QuestionItems() = default;
+    ~QuestionItems() = default;
     // void Update();
     // void Draw();
 

@@ -61,7 +61,7 @@ void GameMainScene::Initialize()
 	//オブジェクトの生成
 	player = new Player;
 	enemy = new Enemy * [2];
-	question = new Question;
+	question = new QuestionItems;
 
 	animatedRect = AnimatedRectangle(board_image, 3000, 600, 800, 340);
 	board = MoveAnimation(board_image, 2000, 400, 800, 400, 0.1f, 1.0f, 1000);

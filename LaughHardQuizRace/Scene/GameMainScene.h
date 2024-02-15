@@ -41,7 +41,7 @@ private:
 	bool clear_flg;   //ゲームクリア時のフラグ
 	Player* player;      //プレイヤー
 	Enemy** enemy;       //敵
-	Question* question;  //問題
+	QuestionItems* question;  //問題
 
 
 	AnimatedRectangle animatedRect;
