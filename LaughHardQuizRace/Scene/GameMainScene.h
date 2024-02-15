@@ -13,18 +13,19 @@ private:
 	int font_handle_h2;     //フォントハンドル
 	int font_handle_h3;     //フォントハンドル
 	int font_handle_h4;     //フォントハンドル
+	int buttonGuidFont;     //ガイド表示用フォントハンドル
 	int answer_font_handle;     //選択肢表示用フォントハンドル
 	int score;            //スコア
 	int high_score;      //ハイスコア
 	int back_ground;     //背景画像
 	int background_sound;     //BGM
 	int board_image;     //ボード画像
-	int mileage;         //走行距離
+	int scroll;         //走行距離
 	int enemy_image[3];  //敵画像
 	int enemy_count[3];  //通り過ぎた敵カウント
 	int time_limit;      //制限時間
 	int start_count;     //ゲーム開始時のカウント
-
+	std::vector<guideElement> gamepad_guides; // ボタンガイド表示用
 
 	int difficulty = 1; //出題する問題の難易度
 	short next_question_num;		//次に出題する問題番号
@@ -37,9 +38,7 @@ private:
 
 	// アニメーション用
 	int answer_anim;				// 正誤のアニメーション用
-	int size_anim_count;
-	float answer_anim_count;
-	float addtime_anim_count;
+	int size_anim_count;			// スケールアニメーション用
 
 	enum class Answer {
 		unanswered, //未回答
@@ -89,6 +88,8 @@ public:
 	int GetDrawCenterX(const char* string, int font_handle = 0, int margin = 0)const;
 
 private:
+	// 正誤を描画する
+	void DrawAnswer() const;
 	// エネミーを	生成
 	void CreateEnemy() const;
 	// 問題を生成

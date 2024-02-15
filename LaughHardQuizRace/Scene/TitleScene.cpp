@@ -6,12 +6,12 @@
 TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL), background_sound(NULL),
 cursor_image(NULL), menu_cursor(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
 {
-	guid_font = CreateFontToHandle("メイリオ", 60, 1, DX_FONTTYPE_ANTIALIASING_EDGE_4X4);
+	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 }
 
 TitleScene::~TitleScene()
 {
-	DeleteFontToHandle(guid_font);
+	DeleteFontToHandle(buttonGuidFont);
 }
 
 
@@ -146,12 +146,16 @@ void TitleScene::Draw()const
 	//DrawFormatString(0, 0, 0xffffff, "プレイ回数: %s", shifted_play_count.c_str());
 	DrawFormatString(0, 0, 0xffffff, "プレイ回数: %d", play_count);
 
-	const std::vector<guideElement> gamepadGuides = {
-	guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::DYNAMIC_CIRCLE,
-			 guid_font, 0xFFFFFF, 0xEBE146,
-			 0xEB3229, 0xFFFFFF, 10, 200.0f, 30.0f, 20.0f, 5.0f),
+	const std::vector<guideElement> gamepad_guides = {
+					guideElement({"L"}, "移動", GUIDE_SHAPE_TYPE::JOYSTICK, buttonGuidFont, 0x000000,
+						 0xFFFFFF, 0xFFFFFF),
+guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,
+		 buttonGuidFont, 0xFFFFFF, 0xEBE146,
+		 0xEB3229, 0xFFFFFF),
 	};
-	DrawGuides(gamepadGuides, 505.0f, 640.0f, 5.0f, 60.0f);
+
+	// ボタンガイドの描画
+	DrawGuides(gamepad_guides, 505.0f, 660.0f, 5.0f, 60.0f);
 }
 
 
