@@ -2,7 +2,7 @@
 #include "../Utility/InputControl.h"
 #include "DxLib.h"
 
-TitleScene::TitleScene() :background_image(NULL), menu_image(NULL),
+TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL),
 cursor_image(NULL), menu_cursor(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
 {
 
@@ -61,7 +61,15 @@ void TitleScene::Initialize()
 //更新処理
 eSceneType TitleScene::Update()
 {
-	scroll += 1;
+	printfDx("%d\n", scroll);
+
+	if(scroll <= 1280)
+	{
+		scroll++;
+	}else
+	{
+		scroll = 0;
+	}
 	//カーソル下移動
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection(20000, 20) == StickDirection::Down)
 	{
@@ -115,7 +123,7 @@ eSceneType TitleScene::Update()
 void TitleScene::Draw()const
 {
 	//タイトル画像の描画
-	DrawGraph(scroll % 1280 + 1280, 0, background_image, TRUE);
+	DrawGraph(scroll % 1280 - 1280, 0, background_image, TRUE);
 	DrawGraph(scroll % 1280, 0, background_image, TRUE);
 	//DrawGraph(0, 0, background_image, FALSE);
 	DrawGraph(300, 70, title_image, TRUE);
