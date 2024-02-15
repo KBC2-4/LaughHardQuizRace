@@ -101,7 +101,7 @@ eSceneType TitleScene::Update()
 	}
 
 	//カーソル決定（決定した画面に遷移する）
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_B))
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_A))
 	{
 		switch (menu_cursor)
 		{
