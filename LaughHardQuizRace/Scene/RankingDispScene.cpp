@@ -19,12 +19,12 @@ RankingDispScene::~RankingDispScene()
 void RankingDispScene::Initialize()
 {
 	//画像の読み込み
-	background_image = LoadGraph("Resource/images/Ranking.bmp");
+	background_image = LoadGraph("Resource/images/Scene/Ranking/background.png");
 
 	//エラーチェック
 	if (background_image == -1)
 	{
-		throw("Resource/images/Ranking.bmpがありません\n");
+		throw("Resource/images/Scene/Ranking/background.pngがありません\n");
 	}
 
 	//ランキング情報を取得
