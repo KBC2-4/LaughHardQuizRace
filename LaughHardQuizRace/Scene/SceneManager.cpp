@@ -23,14 +23,13 @@ SceneManager::~SceneManager()
 //シーンマネージャー機能：初期化処理
 void SceneManager::Initialize()
 {
+	SetOutApplicationLogValidFlag(FALSE);   //ログ出力を無効にする
+
 	//ウィンドウのタイトルを設定
 	SetMainWindowText("爆笑クイズレース");
 	SetMainWindowClassName("LaughHardQuizRace");
 
 	SetWindowIconID(01);
-
-
-	SetOutApplicationLogValidFlag(FALSE);   //ログ出力を無効にする
 
 	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
 
@@ -41,11 +40,11 @@ void SceneManager::Initialize()
 	ChangeFontType(DX_FONTTYPE_ANTIALIASING_4X4);		//フォントをアンチエイリアス対応にする。
 
 	//ウィンドウモードで起動
-	if (ChangeWindowMode(FALSE) != DX_CHANGESCREEN_OK)
+	if (ChangeWindowMode(TRUE) != DX_CHANGESCREEN_OK)
 	{
 		throw("ウィンドウモードで起動できませんでした");
 	}
-
+	
 	//DXライブラリの初期化
 	if (DxLib_Init() == -1)
 	{
@@ -67,7 +66,7 @@ void SceneManager::Initialize()
 void SceneManager::Update()
 {
 	// ウィンドウズとフルスクリーンの切り替えフラグ
-	bool is_window_mode_change = false;
+	bool is_window_mode_change = true;
 
 	// 最後にウィンドウモードが切り替わった時間（マイクロ秒）
 	LONGLONG last_window_mode_change_time = 0;
