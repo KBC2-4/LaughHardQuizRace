@@ -2,7 +2,7 @@
 #include "../Utility/InputControl.h"
 #include "DxLib.h"
 
-TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL),
+TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL), background_sound(NULL),
 cursor_image(NULL), menu_cursor(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
 {
 
@@ -23,6 +23,9 @@ void TitleScene::Initialize()
 	cursor_image = LoadGraph("Resource/images/cone.png");
 	title_image = LoadGraph("Resource/images/title2.png");
 
+	//BGMの読み込み
+	background_sound = LoadSoundMem("Resource/sounds/bgm/Electric_Shine.mp3");
+
 	//エラーチェック
 	if (background_image == -1)
 	{
@@ -41,6 +44,10 @@ void TitleScene::Initialize()
 		throw("Resource/images/title2.pngがありません\n");
 	}
 
+	if (background_sound == -1)
+	{
+		throw("Resource/sounds/bgm/Electric_Shine.mp3がありません\n");
+	}
 	// スプレッドシートのデータを取得
 	//client.GetSpreadsheetData();
 
@@ -55,14 +62,19 @@ void TitleScene::Initialize()
 	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_UTF8);
 
 	//printfDx("PlayCount: %s\n", play_count.c_str());
+
+	//BGMの再生
+	PlaySoundMem(background_sound, DX_PLAYTYPE_BACK, FALSE);
 }
 
 
 //更新処理
 eSceneType TitleScene::Update()
 {
-	
 
+	//カーソル下移動
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection() == StickDirection::Down)
+	// 背景画像を無限スクロール
 	if(scroll <= 1280)
 	{
 		scroll++;
@@ -70,27 +82,23 @@ eSceneType TitleScene::Update()
 	{
 		scroll = 0;
 	}
+
+	// 左スティックの倒された方向を取得
+	const StickDirection direction = InputControl::GetLStickDirection(20000, 0);
+
 	//カーソル下移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || InputControl::GetLStickDirection(20000, 20) == StickDirection::Down)
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) 
+		|| direction == StickDirection::Down)
 	{
-		menu_cursor++;
-		//１番下に到達したら、一番上にする
-		if (menu_cursor > 3)
-		{
-			menu_cursor = 0;
-		}
+		menu_cursor = (menu_cursor + 1) % 4;
 	}
 
 
 	//カーソル上移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) || InputControl::GetLStickDirection(20000, 20) == StickDirection::Up)
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) 
+		|| direction == StickDirection::Up)
 	{
-		menu_cursor--;
-		//１番上に到達したら、一番下にする
-		if (menu_cursor < 0)
-		{
-			menu_cursor = 3;
-		}
+		menu_cursor = (menu_cursor + 3) % 4;
 	}
 
 	//カーソル決定（決定した画面に遷移する）
@@ -145,6 +153,10 @@ void TitleScene::Draw()const
 //終了時処理
 void TitleScene::Finalize()
 {
+	//シーンの切り替えが行われたらBGMを止める
+	StopSoundMem(background_sound);
+	DeleteSoundMem(background_sound);
+
 	//読み込んだ画像の削除
 	DeleteGraph(background_image);
 	DeleteGraph(title_image);

@@ -13,6 +13,7 @@ private:
     int elapsedTime;      // 経過時間（ミリ秒）
     float currentX, currentY; // 現在の位置
     float currentScale;   // 現在のスケール
+	float opacity;        // 不透明度
 
 private:
     // イージング関数（線形補間）
@@ -24,6 +25,7 @@ public:
     
     void Update(int deltaTime);
     void Draw() const;
+    void Close();
 };
 
 
