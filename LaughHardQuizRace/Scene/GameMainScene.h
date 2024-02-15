@@ -34,9 +34,12 @@ private:
 	bool answer_correct;			//生徒の解答の正誤
 	short clear_count;				//正解した問題数
 
-	int answer_anim;				// 正誤のアニメーション用
 
+	// アニメーション用
+	int answer_anim;				// 正誤のアニメーション用
 	int size_anim_count;
+	float answer_anim_count;
+	float addtime_anim_count;
 
 	enum class Answer {
 		unanswered, //未回答
@@ -87,7 +90,7 @@ public:
 
 private:
 	// エネミーを	生成
-	void CreateEnemy();
+	void CreateEnemy() const;
 	// 問題を生成
 	void CreateQuestion();
 	//ハイスコア読み込み処理

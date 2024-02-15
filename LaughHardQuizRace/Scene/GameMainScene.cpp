@@ -6,9 +6,9 @@
 
 #define QUESTION_NUM 40
 
-GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr), answer_anim(0),
-/*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false),
-size_anim_count(0), currentState(State::idle), difficulty(1)
+GameMainScene::GameMainScene() :high_score(0), back_ground(NULL), mileage(0), player(nullptr), answer_anim(0), background_sound(0), board_image(0), score(0),
+/*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false), selectMenu(0), clear_count(0),
+size_anim_count(0), currentState(State::idle), difficulty(1), answer_anim_count(-1), addtime_anim_count(-1)
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
@@ -95,7 +95,8 @@ void GameMainScene::Initialize()
 //更新処理
 eSceneType GameMainScene::Update()
 {
-
+	if (answer_anim_count > -1 && answer_anim_count < 255) { answer_anim_count += 8.5f; }
+	if (addtime_anim_count > -1 && addtime_anim_count < 255) { addtime_anim_count += 8.5f; }
 
 	//制限時間の経過
 	time_limit = GetNowCount() - start_count;
@@ -132,7 +133,7 @@ eSceneType GameMainScene::Update()
 			//PlaySoundMem(correct_se, DX_PLAYTYPE_BACK, TRUE);
 		}
 
-		//BボタンまたはAボタンを押した時
+		// Aボタンを押した時
 		if (InputControl::GetButtonDown(XINPUT_BUTTON_A)) {
 
 			// ステートを解答状態に変更
@@ -151,6 +152,11 @@ eSceneType GameMainScene::Update()
 
 			next_question = true;
 
+			// 正誤のアニメーションを開始
+			answer_anim_count = 0;
+			// タイム加減算のアニメーションを開始
+			addtime_anim_count = 0;
+
 			selectMenu = 0;
 
 			// 問題生成
@@ -158,13 +164,11 @@ eSceneType GameMainScene::Update()
 
 			// ステートを待機状態に変更
 			SetState(State::idle);
-			//正誤のアニメーションを開始
-			//answer_anim_count = 0;
-			//タイム加減算のアニメーションを開始
-			//addtime_anim_count = 0;
 		}
 
 	}
+
+	/*if()*/
 
 	if (size_anim_count < 60) {
 		size_anim_count++;
@@ -304,136 +308,140 @@ void GameMainScene::Draw()const
 	if (currentState == State::question)
 	{
 		board.Draw();
-	}
-
-	{//キャンバス
-
-		// 画面サイズ
-		constexpr int screenWidth = 1280;
-		constexpr int screenHeight = 720;
-
-		// キャンバスサイズ
-		constexpr int canvasWidth = 800;
-		constexpr int canvasHeight = 400;
-
-		int canvas_x1;
-		int canvas_x2;
-		int canvas_y1;
-		int canvas_y2;
-		short speed = 5;
-
-		canvas_x1 = 490;
-		canvas_y1 = 150;
-		//キャンバス 描画
-		//DrawBoxAA(canvas_x1, canvas_y1, canvas_x2, canvas_y2, 0xFFFFFF, TRUE);
-		//DrawExtendGraph(canvas_x1, canvas_y1, canvas_x2, canvas_y2, paper_image, TRUE);
 
 
-		DrawExtendFormatString2ToHandle(canvas_x1 + 30, canvas_y1, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
-			0xFF0000, 0xFFFFFF, font_handle_h2, "%2d問目", question_count + 1);
+		{//キャンバス
 
-		//問題 描画
-		DrawExtendFormatString2ToHandle(GetDrawCenterX(question->GetQuestion(next_question_num).c_str(), font_handle_h2), canvas_y1 + 100,
-			/*size_anim_count * 0.01 + 0.2*/1.0f, size_anim_count * 0.01 + 0.2, 0xF5A000, 0xEFBD00, font_handle_h2, "%s",
-			question->GetQuestion(next_question_num).c_str());
+	// 画面サイズ
+			constexpr int screenWidth = 1280;
+			constexpr int screenHeight = 720;
 
-		//生徒の解答 描画
-		//DrawExtendStringToHandle(canvas_x1 - 200, 370, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4, "選択肢",
-		//	0xFFFFFF, font_handle_h3, 0x000000);
-		//int char_num = GetDrawFormatStringWidthToHandle(font_handle_h4, question->GetAnswer(next_question_num, answer_correct).c_str());
-		//for (int i = 0; i < char_num / 20; i++) {
-		//	DrawExtendStringToHandle(canvas_x1 + 100 + i * 20, 580, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4, "_", 0xFFFFFF, font_handle_h2, 0x000000);
-		//	//DrawLineAA(canvas_x1 + 300, 640, canvas_x1 + 300 + i * 20, 580, 0x000000, size_anim_count * 0.01 + 0.8);
-		//}
+			// キャンバスサイズ
+			constexpr int canvasWidth = 800;
+			constexpr int canvasHeight = 400;
 
-		//const bool question_num = GetRand(1);
+			int canvas_x1;
+			int canvas_x2;
+			int canvas_y1;
+			int canvas_y2;
+			short speed = 5;
 
-		// 選択肢
-		const std::string a1 = question->GetAnswer(next_question_num, answer_correct);
-		const std::string a2 = question->GetAnswer(next_question_num, !answer_correct);
+			canvas_x1 = 490;
+			canvas_y1 = 150;
+			//キャンバス 描画
+			//DrawBoxAA(canvas_x1, canvas_y1, canvas_x2, canvas_y2, 0xFFFFFF, TRUE);
+			//DrawExtendGraph(canvas_x1, canvas_y1, canvas_x2, canvas_y2, paper_image, TRUE);
 
-		// 各選択肢のフォント
-		int a_font = font_handle_h2;
 
-		// 選択肢の文字数が10文字以上の場合
-		if (a1.length() > 10) {
-			a_font = answer_font_handle;
+			DrawExtendFormatString2ToHandle(canvas_x1 + 30, canvas_y1, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
+				0xFF0000, 0xFFFFFF, font_handle_h2, "%2d問目", question_count + 1);
+
+			//問題 描画
+			DrawExtendFormatString2ToHandle(GetDrawCenterX(question->GetQuestion(next_question_num).c_str(), font_handle_h2), canvas_y1 + 100,
+				/*size_anim_count * 0.01 + 0.2*/1.0f, size_anim_count * 0.01 + 0.2, 0xF5A000, 0xEFBD00, font_handle_h2, "%s",
+				question->GetQuestion(next_question_num).c_str());
+
+			//生徒の解答 描画
+			//DrawExtendStringToHandle(canvas_x1 - 200, 370, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4, "選択肢",
+			//	0xFFFFFF, font_handle_h3, 0x000000);
+			//int char_num = GetDrawFormatStringWidthToHandle(font_handle_h4, question->GetAnswer(next_question_num, answer_correct).c_str());
+			//for (int i = 0; i < char_num / 20; i++) {
+			//	DrawExtendStringToHandle(canvas_x1 + 100 + i * 20, 580, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4, "_", 0xFFFFFF, font_handle_h2, 0x000000);
+			//	//DrawLineAA(canvas_x1 + 300, 640, canvas_x1 + 300 + i * 20, 580, 0x000000, size_anim_count * 0.01 + 0.8);
+			//}
+
+			//const bool question_num = GetRand(1);
+
+			// 選択肢
+			const std::string a1 = question->GetAnswer(next_question_num, answer_correct);
+			const std::string a2 = question->GetAnswer(next_question_num, !answer_correct);
+
+			// 各選択肢のフォント
+			int a_font = font_handle_h2;
+
+			// 選択肢の文字数が10文字以上の場合
+			if (a1.length() > 10) {
+				a_font = answer_font_handle;
+			}
+
+			DrawExtendFormatString2ToHandle(canvas_x1 + 30, 400, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
+				0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
+				a1.c_str());
+			DrawExtendFormatString2ToHandle(canvas_x1 + 30, 470, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
+				0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
+				a2.c_str());
 		}
 
-		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 400, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
-			0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
-			a1.c_str());
-		DrawExtendFormatString2ToHandle(canvas_x1 + 30, 470, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
-			0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
-			a2.c_str());
-	}
+		//正誤表示の座標
+		int x = 660;
+		int y = 400;
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, static_cast<int>(answer_anim_count));
+		//正誤表示
 
-	//正誤表示の座標
-	int x = 660;
-	int y = 400;
-	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, static_cast<int>(answer_anim_count));
-	//正誤表示
+		switch (answer)
+		{
 
-	switch (answer)
-	{
+			/*case GameMain::Answer::unanswered:
+				break;*/
+		case Answer::wrong:		// 不正解
 
-		/*case GameMain::Answer::unanswered:
-			break;*/
-	case Answer::wrong:
+		{//キャンバス
 
-	{//キャンバス
-		float canvas_x1 = x;
-		float canvas_x2;
-		float canvas_y1 = y;
-		float canvas_y2;
-		DrawCircleAA(canvas_x1 - 200, canvas_y1 - 200, 25, 30, 0x4171bb, 50.0F);
-		DrawCircleAA(canvas_x1 + 200, canvas_y1 + 200, 25, 30, 0x4171bb, 50.0F);
-		DrawCircleAA(canvas_x1 + 200, canvas_y1 - 200, 25, 30, 0x4171bb, 50.0F);
-		DrawCircleAA(canvas_x1 - 200, canvas_y1 + 200, 25, 30, 0x4171bb, 50.0F);
-		DrawLineAA(canvas_x1 - 200, canvas_y1 - 200, canvas_x1 + 200, canvas_y1 + 200, 0x4171bb, 50.0F);
-		DrawLineAA(canvas_x1 + 200, canvas_y1 - 200, canvas_x1 - 200, canvas_y1 + 200, 0x4171bb, 50.0F);
+			// バツを描画
+			const float canvas_x1 = x;
+			const float canvas_y1 = y;
+			DrawCircleAA(canvas_x1 - 200, canvas_y1 - 200, 25, 30, 0x4171bb, 50.0F);
+			DrawCircleAA(canvas_x1 + 200, canvas_y1 + 200, 25, 30, 0x4171bb, 50.0F);
+			DrawCircleAA(canvas_x1 + 200, canvas_y1 - 200, 25, 30, 0x4171bb, 50.0F);
+			DrawCircleAA(canvas_x1 - 200, canvas_y1 + 200, 25, 30, 0x4171bb, 50.0F);
+			DrawLineAA(canvas_x1 - 200, canvas_y1 - 200, canvas_x1 + 200, canvas_y1 + 200, 0x4171bb, 50.0F);
+			DrawLineAA(canvas_x1 + 200, canvas_y1 - 200, canvas_x1 - 200, canvas_y1 + 200, 0x4171bb, 50.0F);
 
-		DrawStringToHandle(1000, 90, "- 5.000", 0xFF0000, font_handle_h3);
-	}
-	break;
-	case Answer::correct:
-		DrawCircleAA(x, y, 200, 30, 0xd2672f, FALSE, 50.0F);
-		DrawStringToHandle(1000, 90, "+ 1.000", 0xFFFF00, font_handle_h3);
+			DrawStringToHandle(1000, 90, "- 5.000", 0xFF0000, font_handle_h3);
+		}
 		break;
-	default:
-		break;
+		case Answer::correct:		// 正解
+			// 丸を描画
+			DrawCircleAA(x, y, 200, 30, 0xd2672f, FALSE, 50.0f);
+			DrawStringToHandle(1000, 90, "+ 1.000", 0xFFFF00, font_handle_h3);
+			break;
+		default:
+			break;
+		}
+
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+		//! デバッグ 問題の表示
+		//for (const auto& item : question.GetQuizItems()) {
+		//	printfDx("Question: %s\n", item.question.c_str());
+		//	printfDx("Difficulty: %d\n", item.difficultyLevel);
+		//	printfDx("Answer: %s\n", item.answer.c_str());
+
+		//	if (!item.wrongs.empty()) {
+		//		for (const auto& wrong : item.wrongs) {
+		//			printfDx("Wrong: %s\n", wrong.c_str());
+		//		}
+		//	}
+		//	else {
+		//		// wrongsが空の場合
+		//		printfDx("Wrongs: None\n");
+		//	}
+
+		//	printfDx("-----------------------\n");
+		//}
+
+
+
+
+		//! DEBUG エネミー
+		//for (int i = 0; i < 2; i++)
+		//{
+		//	if (enemy[i] != nullptr) {
+		//		const int lane = static_cast<int>((enemy[i]->GetLocation().x - 40) / 105) + 1;
+		//		DrawFormatString(100, 20 + i * 20, 0xffffff, "Enemy: レーン：%d x %f , y %f", lane, enemy[i]->GetLocation().x, enemy[i]->GetLocation().y);
+		//	}
+		//}
 	}
-
-	//! デバッグ 問題の表示
-	//for (const auto& item : question.GetQuizItems()) {
-	//	printfDx("Question: %s\n", item.question.c_str());
-	//	printfDx("Difficulty: %d\n", item.difficultyLevel);
-	//	printfDx("Answer: %s\n", item.answer.c_str());
-
-	//	if (!item.wrongs.empty()) {
-	//		for (const auto& wrong : item.wrongs) {
-	//			printfDx("Wrong: %s\n", wrong.c_str());
-	//		}
-	//	}
-	//	else {
-	//		// wrongsが空の場合
-	//		printfDx("Wrongs: None\n");
-	//	}
-
-	//	printfDx("-----------------------\n");
-	//}
-
-
-
-
-	//! DEBUG エネミー
-	//for (int i = 0; i < 2; i++)
-	//{
-	//	if (enemy[i] != nullptr) {
-	//		const int lane = static_cast<int>((enemy[i]->GetLocation().x - 40) / 105) + 1;
-	//		DrawFormatString(100, 20 + i * 20, 0xffffff, "Enemy: レーン：%d x %f , y %f", lane, enemy[i]->GetLocation().x, enemy[i]->GetLocation().y);
-	//	}
-	//}
 }
 
 
@@ -461,7 +469,7 @@ void GameMainScene::Finalize()
 	//スコアを保存
 	fprintf(fp, "%d,\n", score);
 
-	//避けた数と得点を保存
+	// 避けた数と得点を保存
 	for (int i = 0; i < 3; i++)
 	{
 		fprintf(fp, "%d,\n", enemy_count[i]);
@@ -497,7 +505,7 @@ eSceneType GameMainScene::GetNowScene()const
 int GameMainScene::GetDrawCenterX(const char* string, int font_handle, int margin)const {
 
 	//画面幅
-	const int screenX = 1280;
+	constexpr int screenX = 1280;
 
 	if (margin >= screenX || margin <= -screenX) {
 		margin = 0;
@@ -512,7 +520,7 @@ int GameMainScene::GetDrawCenterX(const char* string, int font_handle, int margi
 	return w;
 }
 
-void GameMainScene::CreateEnemy()
+void GameMainScene::CreateEnemy() const
 {
 	for (int i = 0; i < 1; i++)
 	{
@@ -524,7 +532,6 @@ void GameMainScene::CreateEnemy()
 			//const int type = (GetRand(3) % 3) + difficulty;
 			enemy[i] = new Enemy(type, enemy_image[type]);
 			enemy[i]->Initialize();
-			printfDx("CreateEnemy");
 			break;
 		}
 	}
