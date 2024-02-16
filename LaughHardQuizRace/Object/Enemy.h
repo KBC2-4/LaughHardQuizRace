@@ -15,7 +15,7 @@ class Enemy
 	float scale;		// ‰æ‘œ‚ÌŠg‘å—¦
 
 public:
-	Enemy(int type, int handle);
+	Enemy(int type, int handle, bool appreciation = false);
 	~Enemy();
 
 	void Initialize();            //‰Šú‰»ˆ—

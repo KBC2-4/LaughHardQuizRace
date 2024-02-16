@@ -1,9 +1,15 @@
 #include "Enemy.h"
 #include "DxLib.h"
 
-Enemy::Enemy(int type, int handle) :type(type), image(handle), speed_x(0.0f),
+Enemy::Enemy(int type, int handle, bool appreciation) :type(type), image(handle), speed_x(0.0f),
 location(0.0f), box_size(0.0f), is_stop(false), scale(0.7f)
 {
+	if (appreciation) {
+		
+		//scale = 1.5f; // スケールを1.5fに設定
+		location = Vector2D(1380.0f, 400.0f);
+		return;
+	}
 	// typeが9よりも大きい場合
 	if (this->type > 9) {
 		scale = 1.0f; // スケールを1.0fに設定
@@ -47,8 +53,30 @@ void Enemy::Updata(float speed)
 
 void Enemy::Update()
 {
-	location.x += speed_x;
-	location.y += speed_y;
+	location += Vector2D(this->speed_x * GetRand(1), this->speed_y);
+
+	//// ウィンドウサイズを取得
+	//int width, height;
+	//width = 1280;
+	//height = 720;
+
+	//// 画面の左端を超えた場合
+	//if (location.x < 0) {
+	//	location.x = static_cast<float>(width); // 画面の右端から再出現
+	//}
+	//// 画面の右端を超えた場合
+	//else if (location.x > static_cast<float>(width)) {
+	//	location.x = 0; // 画面の左端から再出現
+	//}
+
+	//// 画面の上端を超えた場合
+	//if (location.y < 0) {
+	//	location.y = static_cast<float>(height); // 画面の下端から再出現
+	//}
+	//// 画面の下端を超えた場合
+	//else if (location.y > static_cast<float>(height)) {
+	//	location.y = 0; // 画面の上端から再出現
+	//}
 
 }
 
