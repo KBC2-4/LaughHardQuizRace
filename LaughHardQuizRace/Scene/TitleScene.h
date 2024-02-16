@@ -4,10 +4,14 @@
 #include "../Utility/SpreadsheetClient.h"
 #include "SceneBase.h"
 #include "../Object/enemyManager.h"
+#include "../Object/RankingData.h"
+
+class RankingData;
 
 class TitleScene:public SceneBase
 {
 private:
+	RankingData* ranking; //ランキング情報
 
 private:
 	int buttonGuidFont;     //ガイド表示用フォントハンドル
