@@ -142,6 +142,7 @@
     <ClCompile Include="Utility\Animation\AnimatedRectangle.cpp" />
     <ClCompile Include="Utility\Animation\Animation.cpp" />
     <ClCompile Include="Utility\Animation\MoveAnimation.cpp" />
+    <ClCompile Include="Utility\GameData.cpp" />
     <ClCompile Include="Utility\Guide.cpp" />
     <ClCompile Include="Utility\InputControl.cpp" />
     <ClCompile Include="Scene\HelpScene.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Utility\Animation\AnimatedRectangle.h" />
     <ClInclude Include="Utility\Animation\Animation.h" />
     <ClInclude Include="Utility\Animation\MoveAnimation.h" />
+    <ClInclude Include="Utility\GameData.h" />
     <ClInclude Include="Utility\Guide.h" />
     <ClInclude Include="Utility\InputControl.h" />
     <ClInclude Include="Utility\MathUtils.h" />

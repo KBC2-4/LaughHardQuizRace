@@ -4,10 +4,11 @@
 #include <math.h>
 #include "../Utility/InputControl.h"
 #include "../Utility/Guide.h"
+#include "../Utility/GameData.h"
 
 #define QUESTION_NUM 40
 
-GameMainScene::GameMainScene() :high_score(0), background_image(NULL), scroll(0), player(nullptr), answer_anim(0), idle_bgm(0), board_image(0), score(0), add_score(0),
+GameMainScene::GameMainScene() :background_image(NULL), scroll(0), player(nullptr), answer_anim(0), idle_bgm(0), board_image(0), score(0), add_score(0),
 /*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false), selectMenu(0), clear_count(0), question_count(0),
 size_anim_count(0), currentState(State::idle), correct_se(0), cursor_move_se(0), wrong_se(0), enter_se(0), current_question_num(GetRand(QUESTION_NUM - 1))
 {
@@ -64,12 +65,9 @@ GameMainScene::~GameMainScene()
 //初期化処理
 void GameMainScene::Initialize()
 {
-	// 高得点値を読み込む
-	ReadHighScore();
 
 	// 画像の読み込み
 	background_image = LoadGraph("Resource/images/Scene/GameMain/background.png");
-	//barrier_image = LoadGraph(      "Resource/images/barrier.png");
 	const int result = LoadDivGraph("Resource/images/fish.png", 15, 3, 5, 200, 138,
 		enemy_image);
 
@@ -165,6 +163,9 @@ eSceneType GameMainScene::Update()
 	//制限時間が0以下になった場合、リザルト画面へ
 	if (time_limit > 0)
 	{
+		// GameDataにスコアを保存
+		GameData::SetScore(score);
+
 		clear_flg = true;
 		return eSceneType::E_RESULT;
 	}
@@ -355,26 +356,6 @@ eSceneType GameMainScene::Update()
 		//board.Update(60);
 	}
 
-	// Stateチェック
-//switch (currentState)
-//{
-//	// 待機状態
-//case State::idle:
-//	printfDx("idle\n");
-//	break;
-
-//case State::question:
-//	printfDx("question\n");
-//	break;
-
-//case State::answer:
-//	printfDx("answer\n");
-//	break;
-
-//default:
-//	break;
-//}
-
 	return GetNowScene();
 }
 
@@ -493,18 +474,6 @@ void GameMainScene::Draw()const
 	//	printfDx("-----------------------\n");
 	//}
 
-
-
-
-	//! DEBUG エネミー
-	//for (int i = 0; i < 2; i++)
-	//{
-	//	if (enemy[i] != nullptr) {
-	//		const int lane = static_cast<int>((enemy[i]->GetLocation().x - 40) / 105) + 1;
-	//		DrawFormatString(100, 20 + i * 20, 0xffffff, "Enemy: レーン：%d x %f , y %f", lane, enemy[i]->GetLocation().x, enemy[i]->GetLocation().y);
-	//	}
-	//}
-
 }
 
 
@@ -525,12 +494,6 @@ void GameMainScene::Finalize()
 
 	//スコアを保存
 	fprintf(fp, "%d,\n", score);
-
-	// 避けた数と得点を保存
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	fprintf(fp, "%d,\n", enemy_count[i]);
-	//}
 
 	//ファイルクローズ
 	fclose(fp);
@@ -719,13 +682,6 @@ void GameMainScene::CreateQuestion()
 
 		current_question_num = GetRand(QUESTION_NUM - 1);
 
-		//printfDx("current_question_num:%d", current_question_num);
-		////デバッグ
-		//for (int num : question_num) {
-		//	printfDx("[%d]", num);
-
-					//解答をリセット
-
 	}
 
 	// 解答のアニメーション用に現在の経過時間を格納
@@ -733,17 +689,6 @@ void GameMainScene::CreateQuestion()
 
 	//次の問題番号をプッシュ
 	question_num.push_back(current_question_num);
-}
-
-//ハイスコア読み込み
-void GameMainScene::ReadHighScore()
-{
-	RankingData data;
-	data.Initialize();
-
-	high_score = data.GetScore(0);
-
-	data.Finalize();
 }
 
 

@@ -4,11 +4,11 @@
 #include "../Utility/Guide.h"
 
 TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL), background_sound(NULL),
-cursor_image(NULL), menu_cursor(0),cursor_move_se(0),enter_se(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
+cursor_image(NULL), menu_cursor(0),cursor_move_se(0),enter_se(0), client(L"AKfycbyCbERdoRMfYxiJLrMaQMS1grPSBHRDSPtoPvH0yrY-7QTZjRLeBYgBqA8zTUY56GtL")
 {
 	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 
-	enemyManager = EnemyManager();
+	//enemyManager = EnemyManager();
 }
 
 TitleScene::~TitleScene()
@@ -64,24 +64,19 @@ void TitleScene::Initialize()
 	}
 
 	// スプレッドシートのデータを取得
-	//client.GetSpreadsheetData();
+	client.GetSpreadsheetData();
 
-	//// スプレッドシートにデータを書き込み
+	// スプレッドシートにデータを書き込み
 	//client.PostSpreadsheetData(L"player123", 1000);
 
-	//const auto task = client.GetPlayCount();
-	//// 非同期タスクの結果を同期的に待つ
-	//play_count = task.get();
-
-	// 使用する文字コードを utf8 に設定
-	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_UTF8);
-
-	//printfDx("PlayCount: %s\n", play_count.c_str());
+	const auto task = client.GetPlayCount();
+	// 非同期タスクの結果を同期的に待つ
+	play_count = task.get();
 
 	//BGMの再生
 	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
 
-	enemyManager.LoadImages();
+	//enemyManager.LoadImages();
 
 	//ランキング情報を取得
 	ranking = new RankingData;
@@ -136,7 +131,7 @@ eSceneType TitleScene::Update()
 		{
 			case 0:
 				// プレイ回数をインクリメント
-				//client.IncrementPlayCount();
+				client.IncrementPlayCount();
 				
 				return eSceneType::E_MAIN;
 				
@@ -151,7 +146,7 @@ eSceneType TitleScene::Update()
 		}
 	}
 
-	enemyManager.Update();
+	//enemyManager.Update();
 
 	//現在のシーンタイプを返す
 	return GetNowScene();
@@ -166,7 +161,7 @@ void TitleScene::Draw()const
 	DrawGraph(scroll % 1280 - 1280, 0, background_image, TRUE);
 	DrawGraph(scroll % 1280, 0, background_image, TRUE);
 
-	enemyManager.Draw();
+	//enemyManager.Draw();
 
 	//DrawGraph(0, 0, background_image, FALSE);
 	DrawGraph(300, 70, title_image, TRUE);
@@ -179,7 +174,13 @@ void TitleScene::Draw()const
 	DrawRotaGraph(800, 350 + menu_cursor * 75, 0.7, DX_PI / 0.1, cursor_image, TRUE);
 	//std::string shifted_play_count = WStringToShiftJIS(play_count);
 	//DrawFormatString(0, 0, 0xffffff, "プレイ回数: %s", shifted_play_count.c_str());
+
+	/*使用する文字コードを utf8 に設定*/
+	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_UTF8);
+
 	DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: %d", play_count);
+	/*使用する文字コードを shift-jis に設定*/
+	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_SHIFTJIS);
 
 	const std::vector<guideElement> gamepad_guides = {
 					guideElement({"L"}, "移動", GUIDE_SHAPE_TYPE::JOYSTICK, buttonGuidFont, 0x000000,
@@ -193,13 +194,13 @@ guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,
 	DrawGuides(gamepad_guides, 505.0f, 660.0f, 5.0f, 60.0f);
 
 	//取得したランキングデータを描画する
-	for (int i = 0; i < 1; i++)
-	{
-		/*DrawFormatStringToHandle(50, 170 + i * 25, 0xffffff, buttonGuidFont, "%2d %-15s %6d",
-			ranking->GetRank(i), ranking->GetName(i), ranking->GetScore(i));*/
-			DrawFormatStringToHandle(50, 170 + i * 25, 0xffffff, buttonGuidFont, "前回のスコア：%6d",
-				ranking->GetScore(i));
-	}
+	//for (int i = 0; i < 1; i++)
+	//{
+	//	/*DrawFormatStringToHandle(50, 170 + i * 25, 0xffffff, buttonGuidFont, "%2d %-15s %6d",
+	//		ranking->GetRank(i), ranking->GetName(i), ranking->GetScore(i));*/
+	//		DrawFormatStringToHandle(50, 170 + i * 25, 0xffffff, buttonGuidFont, "前回のスコア：%6d",
+	//			ranking->GetScore(i));
+	//}
 }
 
 

@@ -27,8 +27,8 @@ private:
 	int menu_cursor;
 	int play_count;             //ƒvƒŒƒC‰ñ”
 
-	//SpreadsheetClient client;
-	EnemyManager enemyManager;
+	SpreadsheetClient client;
+	//EnemyManager enemyManager;
 
 public:
 	TitleScene();

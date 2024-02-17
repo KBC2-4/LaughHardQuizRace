@@ -119,7 +119,7 @@ void RankingInputScene::Draw()const
 void RankingInputScene::Finalize()
 {
 	//ランキングにデータを格納
-	ranking->SetRankingData(score, name);
+	//ranking->SetRankingData(score, name);
 
 	//読み込んだ画像を削除
 	DeleteGraph(backgrouond_image);

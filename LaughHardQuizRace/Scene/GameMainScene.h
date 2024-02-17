@@ -16,7 +16,6 @@ private:
 	int buttonGuidFont;     //ガイド表示用フォントハンドル
 	int answer_font_handle;     //選択肢表示用フォントハンドル
 	int score;            // スコア
-	int high_score;      // ハイスコア
 	int add_score;       // 追加するスコア
 	int background_image;     //背景画像
 	int idle_bgm;     //アイドル時のBGM
@@ -101,8 +100,6 @@ private:
 	void CreateEnemy() const;
 	// 問題を生成
 	void CreateQuestion();
-	//ハイスコア読み込み処理
-	void ReadHighScore();
 	//当たり判定
 	bool IsHitCheck(Player* p, Enemy* e) const;
 	void BubbleSort(Enemy enemies[], int n) const;

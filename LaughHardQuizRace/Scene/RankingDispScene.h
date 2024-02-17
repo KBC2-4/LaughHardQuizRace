@@ -5,10 +5,13 @@
 class RankingDispScene:public SceneBase
 {
 private:
-
-private:
-	int background_image; //背景画像
-	RankingData* ranking; //ランキング情報
+	int font_handle_h2;     // フォントハンドル
+	int font_handle_h3;     // フォントハンドル
+	int font_handle_h1;     // フォントハンドル
+	int buttonGuidFont;     // ガイド表示用フォントハンドル
+	int background_image; // 背景画像
+	int crown_image[3];  // 王冠画像
+	RankingData* ranking; // ランキング情報
 
 public:
 	RankingDispScene();
