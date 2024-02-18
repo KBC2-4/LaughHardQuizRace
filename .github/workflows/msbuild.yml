@@ -45,9 +45,4 @@ jobs:
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} `
-        /p:DXLIB_DIR="${{ env.DXLIB_DIR }}" `
-        /p:IncludePath="${{ env.CPPRESTSDK_DIR }}/include;$$(IncludePath)" `
-        /p:LibraryPath="${{ env.CPPRESTSDK_DIR }}/lib;$$(LibraryPath)" `
-        /p:AdditionalLibraryDirectories="${{ env.CPPRESTSDK_DIR }}/lib" `
-        ${{ env.SOLUTION_FILE_PATH }}
+        msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:DXLIB_DIR="${{ env.DXLIB_DIR }}" /p:CPPRESTSDK_DIR="${{ env.CPPRESTSDK_DIR }}" ${{ env.SOLUTION_FILE_PATH }}
