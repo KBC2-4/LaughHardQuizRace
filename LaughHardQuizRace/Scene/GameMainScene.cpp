@@ -68,7 +68,7 @@ void GameMainScene::Initialize()
 
 	// ‰æ‘œ‚Ì“Ç‚İ‚İ
 	background_image = LoadGraph("Resource/images/Scene/GameMain/background.png");
-	const int result = LoadDivGraph("Resource/images/fish.png", 15, 3, 5, 200, 138,
+	const int result = LoadDivGraph("Resource/images/Scene/GameMain/fish.png", 15, 3, 5, 200, 138,
 		enemy_image);
 
 
@@ -97,7 +97,7 @@ void GameMainScene::Initialize()
 
 	if (result == -1)
 	{
-		throw("Resource/images/fish.png‚ª‚ ‚è‚Ü‚¹‚ñ\n");
+		throw("Resource/images/Scene/GameMain/fish.png‚ª‚ ‚è‚Ü‚¹‚ñ\n");
 	}
 
 	if (idle_bgm == -1)

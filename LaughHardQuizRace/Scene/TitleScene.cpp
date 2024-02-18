@@ -22,9 +22,9 @@ void TitleScene::Initialize()
 {
 	//‰æ‘œ‚Ì“Ç‚İ‚İ
 	background_image = LoadGraph("Resource/images/Scene/Title/background.png");
-	menu_image = LoadGraph("Resource/images/menu.png");
-	cursor_image = LoadGraph("Resource/images/cone.png");
-	title_image = LoadGraph("Resource/images/title2.png");
+	menu_image = LoadGraph("Resource/images/Scene/Title/menu.png");
+	cursor_image = LoadGraph("Resource/images/Scene/Title/cursor.png");
+	title_image = LoadGraph("Resource/images/Scene/Title/title.png");
 
 	//BGM‚Ì“Ç‚İ‚İ
 	background_sound = LoadSoundMem("Resource/sounds/bgm/title.mp3");
@@ -38,15 +38,15 @@ void TitleScene::Initialize()
 	}
 	if (menu_image == -1)
 	{
-		throw("Resource/images/menu.png‚ª‚ ‚è‚Ü‚¹‚ñ\n");
+		throw("Resource/images/Scene/Title/menu.png‚ª‚ ‚è‚Ü‚¹‚ñ\n");
 	}
 	if (cursor_image == -1)
 	{
-		throw("Resource/images/cursor.png‚ª‚ ‚è‚Ü‚¹‚ñ\n");
+		throw("Resource/images/Scene/Title/cursor.png‚ª‚ ‚è‚Ü‚¹‚ñ\n");
 	}
 	if (title_image == -1)
 	{
-		throw("Resource/images/title2.png‚ª‚ ‚è‚Ü‚¹‚ñ\n");
+		throw("Resource/images/Scene/Title/title.png‚ª‚ ‚è‚Ü‚¹‚ñ\n");
 	}
 
 	if (background_sound == -1)

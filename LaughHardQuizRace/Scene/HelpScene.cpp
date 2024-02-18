@@ -17,7 +17,7 @@ HelpScene::~HelpScene()
 void HelpScene::Initialize()
 {
 	//画像の読み込み
-	Help_image = LoadGraph("Resource/images/Help.png");
+	Help_image = LoadGraph("Resource/images/Scene/Help/Help.png");
 	background_image = LoadGraph("Resource/images/Scene/Title/background.png");
 
 	background_sound = LoadSoundMem("Resource/sounds/bgm/Electric_Shine.mp3");
@@ -25,7 +25,7 @@ void HelpScene::Initialize()
 	//エラーチェック
 	if (Help_image == -1)
 	{
-		throw("Resource/images/Help.png\n");
+		throw("Resource/images/Scene/Help/Help.png\n");
 	}
 
 	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
