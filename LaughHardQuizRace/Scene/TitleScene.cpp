@@ -2,6 +2,7 @@
 #include "../Utility/InputControl.h"
 #include "DxLib.h"
 #include "../Utility/Guide.h"
+#include "../Utility/GameData.h"
 
 TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL), background_sound(NULL),
 cursor_image(NULL), menu_cursor(0), cursor_move_se(0), enter_se(0), play_count(-1), buttonGuidFont(0), ranking(nullptr),
@@ -27,7 +28,20 @@ void TitleScene::Initialize()
 	title_image = LoadGraph("Resource/images/Scene/Title/title.png");
 
 	//BGMの読み込み
-	background_sound = LoadSoundMem("Resource/sounds/bgm/title.mp3");
+		// 前回の再生途中のBGMそれを再生
+	if (GameData::GetPrevBGM() == -1)
+	{
+		background_sound = LoadSoundMem("Resource/sounds/bgm/title.mp3");
+		if (background_sound == -1)
+		{
+			throw("Resource/sounds/bgm/title.mp3がありません\n");
+		}
+	}
+	else
+	{
+		background_sound = GameData::GetPrevBGM();
+	}
+
 	enter_se = LoadSoundMem("Resource/sounds/se/enter.mp3");
 	cursor_move_se = LoadSoundMem("Resource/sounds/se/cursor_move.mp3");
 
@@ -47,11 +61,6 @@ void TitleScene::Initialize()
 	if (title_image == -1)
 	{
 		throw("Resource/images/Scene/Title/title.pngがありません\n");
-	}
-
-	if (background_sound == -1)
-	{
-		throw("Resource/sounds/bgm/title.mp3がありません\n");
 	}
 
 	if (enter_se == -1)
@@ -153,6 +162,8 @@ eSceneType TitleScene::Update()
 			return eSceneType::E_RANKING_DISP;
 
 		case 2:
+			// 前回のBGMのハンドルを格納
+			GameData::SetPrevBGM(background_sound);
 			return eSceneType::E_HELP;
 
 		case 3:
@@ -198,7 +209,8 @@ void TitleScene::Draw()const
 	if (play_count != -1) {
 		// プレイ回数の表示処理
 		DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: %d", play_count);
-	}else
+	}
+	else
 	{
 		DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: 読み込み中...");
 	}
@@ -232,7 +244,12 @@ void TitleScene::Finalize()
 {
 	//シーンの切り替えが行われたらBGMを止める
 	StopSoundMem(background_sound);
-	DeleteSoundMem(background_sound);
+
+	// 格納されたBGMと異なる場合は削除
+	if (GameData::GetPrevBGM() != background_sound)
+	{
+		DeleteSoundMem(background_sound);
+	}
 
 	DeleteSoundMem(enter_se);
 	DeleteSoundMem(cursor_move_se);

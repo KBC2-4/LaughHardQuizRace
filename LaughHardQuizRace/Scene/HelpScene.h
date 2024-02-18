@@ -9,6 +9,7 @@ private:
 	int background_image;
 	int scroll;
 	int background_sound;
+	int enter_se;        //Œˆ’è ‰¹ºƒnƒ“ƒhƒ‹
 public:
 	HelpScene();
 	virtual ~HelpScene();

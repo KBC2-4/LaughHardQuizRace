@@ -16,7 +16,7 @@ private:
 private:
 	int buttonGuidFont;     //ガイド表示用フォントハンドル
 	int background_image;
-	int background_sound;
+	int background_sound;		//BGM
 	int cursor_move_se;       //カーソル移動 音声ハンドル
 	int enter_se;        //決定 音声ハンドル
 	int menu_image;
