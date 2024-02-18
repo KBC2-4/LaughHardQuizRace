@@ -8,7 +8,7 @@
 #include "RankingDispScene.h"
 #include "RankingInputScene.h"
 
-SceneManager::SceneManager() :current_scene(nullptr)
+SceneManager::SceneManager() :current_scene(nullptr), is_first_draw_completed(false)
 {
 
 }
@@ -34,6 +34,10 @@ void SceneManager::Initialize()
 	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
 
 	SetGraphMode(1280, 720, 32);
+
+	is_first_draw_completed = false;
+	SetWindowVisibleFlag(FALSE);// 最初はウィンドウを表示させない
+	
 
 	SetAlwaysRunFlag(true);		//常にアクティブにする
 
@@ -158,6 +162,11 @@ void SceneManager::Draw()const
 
 	//裏画面の内容を表画面に反映
 	ScreenFlip();
+
+	if (!is_first_draw_completed) {
+		SetWindowVisibleFlag(TRUE); // 最初の描画が完了したらウィンドウを表示
+		is_first_draw_completed = true; // 最初の描画が完了したことを記録
+	}
 }
 
 

@@ -11,6 +11,7 @@
 class SceneManager
 {
 private:
+	mutable bool is_first_draw_completed; // 最初の描画が完了したかどうかのフラグ
 	SceneBase* current_scene;   //現在シーン情報
 	static int play_count;             //プレイ回数
 	int last_scorelist[5];      //最後のスコアリスト
