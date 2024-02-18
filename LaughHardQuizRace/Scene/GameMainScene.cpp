@@ -161,7 +161,7 @@ eSceneType GameMainScene::Update()
 	time_limit = GetNowCount() - start_count;
 
 	//制限時間が0以下になった場合、リザルト画面へ
-	if (time_limit > 0)
+	if (time_limit >= 0)
 	{
 		// GameDataにスコアを保存
 		GameData::SetScore(score);
@@ -504,25 +504,6 @@ void GameMainScene::Finalize()
 eSceneType GameMainScene::GetNowScene()const
 {
 	return eSceneType::E_MAIN;
-}
-
-
-int GameMainScene::GetDrawCenterX(const char* string, int font_handle, int margin)const {
-
-	//画面幅
-	constexpr int screenX = 1280;
-
-	if (margin >= screenX || margin <= -screenX) {
-		margin = 0;
-	}
-
-	if (font_handle == 0) {
-		font_handle = DX_DEFAULT_FONT_HANDLE;
-	}
-
-
-	const int w = screenX / 2 + margin - (GetDrawFormatStringWidthToHandle(font_handle, string) / 2);
-	return w;
 }
 
 void GameMainScene::AddScore()
