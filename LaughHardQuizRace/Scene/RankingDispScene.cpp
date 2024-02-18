@@ -6,12 +6,18 @@
 #include "DxLib.h"
 #include "../Utility/json.hpp"
 #include "../Utility/Guide.h"
+#include "../Utility/GameData.h"
 using json = nlohmann::json;
 
-RankingDispScene::RankingDispScene() :background_image(NULL), ranking(nullptr)
+RankingDispScene::RankingDispScene() :background_image(NULL), ranking(nullptr),
+font_handle_h2(0), font_handle_h3(0), font_handle_h1(0), buttonGuidFont(0), rawData(L"")
 {
-
+	for (int i = 0; i < 3; i++)
+	{
+		crown_image[i] = NULL;
+	}
 }
+
 
 RankingDispScene::~RankingDispScene()
 {
@@ -22,7 +28,7 @@ RankingDispScene::~RankingDispScene()
 //初期化処理
 void RankingDispScene::Initialize()
 {
-	//画像の読み込み
+	// 画像の読み込み
 	background_image = LoadGraph("Resource/images/Scene/Ranking/background.png");
 
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
@@ -33,7 +39,24 @@ void RankingDispScene::Initialize()
 	const int result = LoadDivGraph("Resource/images/Scene/Ranking/crowns.png", 3, 3, 1, 66, 48,
 		crown_image);
 
-	//エラーチェック
+	//BGMの読み込み
+// 前回の再生途中のBGMそれを再生
+	if (GameData::GetPrevBGM() == -1)
+	{
+		background_sound = LoadSoundMem("Resource/sounds/bgm/ranking.mp3");
+		if (background_sound == -1)
+		{
+			throw("Resource/sounds/bgm/ranking.mp3がありません\n");
+		}
+	}
+	else
+	{
+		background_sound = GameData::GetPrevBGM();
+	}
+	// SEの読み込み
+	enter_se = LoadSoundMem("Resource/sounds/se/enter.mp3");
+
+	// エラーチェック
 	if (background_image == -1)
 	{
 		throw("Resource/images/Scene/Ranking/background.pngがありません\n");
@@ -44,17 +67,57 @@ void RankingDispScene::Initialize()
 		throw("Resource/images/Scene/Ranking/crowns.pngがありません\n");
 	}
 
+	if (enter_se == -1)
+	{
+		throw("Resource/sounds/se/enter.mp3がありません\n");
+	}
+
 	//ランキング情報を取得
 	ranking = new RankingData;
 	ranking->Initialize();
+
+	//BGMの再生
+	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
 }
 
 //更新処理
 eSceneType RankingDispScene::Update()
 {
+
+	//std::wstring wstrData = ranking->GetData();
+	//std::string strData = WStringToShiftJIS(wstrData);
+	//clsDx();
+	//printfDx("Ranking Data: %s\n", strData.c_str());
+
+	// データ取得後
+	this->rawData = ranking->GetData();
+	//{	//! デバッグ用
+	//printfDx("Raw Data Length: %d\n", rawData.length());
+
+	//// 変換後
+	//std::string shiftJISData = WStringToShiftJIS(rawData);
+	//printfDx("Converted Data Length: %d\n", shiftJISData.length());
+	//printfDx("Converted Data: %s\n", shiftJISData.c_str());
+
+	//// パース前
+	//if (!shiftJISData.empty() && shiftJISData.back() != '}' && shiftJISData.back() != ']') {
+	//	printfDx("Warning: JSON data might be incomplete.\n");
+	//}
+	//}
+
 	//Bボタンが押されたら、タイトルに戻る
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_A))
 	{
+		// SE再生
+		PlaySoundMem(enter_se, DX_PLAYTYPE_BACK, TRUE);
+		//SEが鳴り終わってから画面推移する。
+		while (CheckSoundMem(enter_se)) {}
+
+		// ランキングデータ取得中の場合は、推移しない
+		if (rawData.empty())
+		{
+			return GetNowScene();
+		}
 		return eSceneType::E_TITLE;
 	}
 
@@ -79,28 +142,8 @@ void RankingDispScene::Draw()const
 
 	//DrawStringToHandle(400, 30, "ランキング", 0x0C74FF, font_handle_h1, 0xffffff);
 
-	//std::wstring wstrData = ranking->GetData();
-	//std::string strData = WStringToShiftJIS(wstrData);
-	//clsDx();
-	//printfDx("Ranking Data: %s\n", strData.c_str());
 
-	// データ取得後
-	std::wstring rawData = ranking->GetData();
-	//{	//! デバッグ用
-	//printfDx("Raw Data Length: %d\n", rawData.length());
-
-	//// 変換後
-	//std::string shiftJISData = WStringToShiftJIS(rawData);
-	//printfDx("Converted Data Length: %d\n", shiftJISData.length());
-	//printfDx("Converted Data: %s\n", shiftJISData.c_str());
-
-	//// パース前
-	//if (!shiftJISData.empty() && shiftJISData.back() != '}' && shiftJISData.back() != ']') {
-	//	printfDx("Warning: JSON data might be incomplete.\n");
-	//}
-	//}
-
-	if(rawData.empty())
+	if (rawData.empty())
 	{
 		DrawStringToHandle(370, 200, "読み込み中...", 0x0C74FF, font_handle_h1, 0xffffff);
 	}
@@ -166,6 +209,19 @@ guideElement({"A"}, "タイトルへ", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,
 //終了時処理
 void RankingDispScene::Finalize()
 {
+	//シーンの切り替えが行われたらBGMを止める
+	StopSoundMem(background_sound);
+	// 格納されたBGMと異なる場合は削除
+	if (GameData::GetPrevBGM() != background_sound)
+	{
+		DeleteSoundMem(background_sound);
+	}
+
+	// 次のシーンに同じBGMは使用していないため、初期化
+	GameData::SetPrevBGM(-1);
+
+	DeleteSoundMem(enter_se);
+
 	//読み込んだ画像の削除
 	DeleteGraph(background_image);
 
