@@ -2,13 +2,15 @@
 #include "../Utility/InputControl.h"
 #include "DxLib.h"
 #include "../Utility/Guide.h"
+#include "../Utility/GameData.h"
 
 TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL), background_sound(NULL),
-cursor_image(NULL), menu_cursor(0),cursor_move_se(0),enter_se(0)/*, client(L"AKfycbyoJ4KKmOTRqUji0Tycg6710ZE8SlRKMCuXO9YtUzQ0ZhPx2-WO5yCKKM8xMA8fbthB")*/
+cursor_image(NULL), menu_cursor(0), cursor_move_se(0), enter_se(0), play_count(-1), buttonGuidFont(0), ranking(nullptr),
+client(L"AKfycbwTncJE7fNBzWd4aZqG7Q7_ysP9XTNcV91VlStNzjDP3Xw95oEKgYwiNVQgU73AXxpv")
 {
 	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 
-	enemyManager = EnemyManager();
+	//enemyManager = EnemyManager();
 }
 
 TitleScene::~TitleScene()
@@ -21,12 +23,25 @@ void TitleScene::Initialize()
 {
 	//画像の読み込み
 	background_image = LoadGraph("Resource/images/Scene/Title/background.png");
-	menu_image = LoadGraph("Resource/images/menu.png");
-	cursor_image = LoadGraph("Resource/images/cone.png");
-	title_image = LoadGraph("Resource/images/title2.png");
+	menu_image = LoadGraph("Resource/images/Scene/Title/menu.png");
+	cursor_image = LoadGraph("Resource/images/Scene/Title/cursor.png");
+	title_image = LoadGraph("Resource/images/Scene/Title/title.png");
 
 	//BGMの読み込み
-	background_sound = LoadSoundMem("Resource/sounds/bgm/title.mp3");
+		// 前回の再生途中のBGMそれを再生
+	if (GameData::GetPrevBGM() == -1)
+	{
+		background_sound = LoadSoundMem("Resource/sounds/bgm/title.mp3");
+		if (background_sound == -1)
+		{
+			throw("Resource/sounds/bgm/title.mp3がありません\n");
+		}
+	}
+	else
+	{
+		background_sound = GameData::GetPrevBGM();
+	}
+
 	enter_se = LoadSoundMem("Resource/sounds/se/enter.mp3");
 	cursor_move_se = LoadSoundMem("Resource/sounds/se/cursor_move.mp3");
 
@@ -37,20 +52,15 @@ void TitleScene::Initialize()
 	}
 	if (menu_image == -1)
 	{
-		throw("Resource/images/menu.pngがありません\n");
+		throw("Resource/images/Scene/Title/menu.pngがありません\n");
 	}
 	if (cursor_image == -1)
 	{
-		throw("Resource/images/cursor.pngがありません\n");
+		throw("Resource/images/Scene/Title/cursor.pngがありません\n");
 	}
 	if (title_image == -1)
 	{
-		throw("Resource/images/title2.pngがありません\n");
-	}
-
-	if (background_sound == -1)
-	{
-		throw("Resource/sounds/bgm/title.mp3がありません\n");
+		throw("Resource/images/Scene/Title/title.pngがありません\n");
 	}
 
 	if (enter_se == -1)
@@ -66,22 +76,19 @@ void TitleScene::Initialize()
 	// スプレッドシートのデータを取得
 	//client.GetSpreadsheetData();
 
-	//// スプレッドシートにデータを書き込み
-	//client.PostSpreadsheetData(L"player123", 1000);
-
 	//const auto task = client.GetPlayCount();
 	//// 非同期タスクの結果を同期的に待つ
 	//play_count = task.get();
 
-	// 使用する文字コードを utf8 に設定
-	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_UTF8);
-
-	//printfDx("PlayCount: %s\n", play_count.c_str());
+	// 非同期にプレイ回数を取得
+	auto task = client.GetPlayCount().then([this](int count) {
+		play_count = count;
+		});
 
 	//BGMの再生
 	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
 
-	enemyManager.LoadImages();
+	//enemyManager.LoadImages();
 
 	//ランキング情報を取得
 	ranking = new RankingData;
@@ -94,10 +101,11 @@ eSceneType TitleScene::Update()
 {
 
 	// 背景画像を無限スクロール
-	if(scroll <= 1280)
+	if (scroll <= 1280)
 	{
 		scroll++;
-	}else
+	}
+	else
 	{
 		scroll = 0;
 	}
@@ -106,7 +114,7 @@ eSceneType TitleScene::Update()
 	const StickDirection direction = InputControl::GetLStickDirection(20000, 10);
 
 	//カーソル下移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) 
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN)
 		|| direction == StickDirection::Down)
 	{
 		// SE再生
@@ -116,7 +124,7 @@ eSceneType TitleScene::Update()
 
 
 	//カーソル上移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) 
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP)
 		|| direction == StickDirection::Up)
 	{
 		// SE再生
@@ -130,28 +138,40 @@ eSceneType TitleScene::Update()
 		// SE再生
 		PlaySoundMem(enter_se, DX_PLAYTYPE_BACK, TRUE);
 		//SEが鳴り終わってから画面推移する。
-		/*while (CheckSoundMem(enter_se)) {}*/
+		while (CheckSoundMem(enter_se)) {}
 
 		switch (menu_cursor)
 		{
-			case 0:
-				// プレイ回数をインクリメント
-				//client.IncrementPlayCount();
-				
-				return eSceneType::E_MAIN;
-				
-			case 1:
-				return eSceneType::E_RANKING_DISP;
+		case 0:
+			// プレイ回数をインクリメント
+			//client.IncrementPlayCount();
+			// プレイ回数をインクリメント（バックグラウンドで実行）
+			client.IncrementPlayCount().then([](pplx::task<void> t) {
+				try {
+					t.get(); // エラーをキャッチ
+					std::wcout << U("プレイ回数をインクリメントしました。") << std::endl;
+				}
+				catch (...) {
+					// エラー処理
+					std::cerr << "プレイ回数のインクリメントに失敗しました。" << std::endl;
+				}
+				});
+			return eSceneType::E_MAIN;
 
-			case 2:
-				return eSceneType::E_HELP;
+		case 1:
+			return eSceneType::E_RANKING_DISP;
 
-			case 3:
-				return eSceneType::E_END;
+		case 2:
+			// 前回のBGMのハンドルを格納
+			GameData::SetPrevBGM(background_sound);
+			return eSceneType::E_HELP;
+
+		case 3:
+			return eSceneType::E_END;
 		}
 	}
 
-	enemyManager.Update();
+	//enemyManager.Update();
 
 	//現在のシーンタイプを返す
 	return GetNowScene();
@@ -166,7 +186,7 @@ void TitleScene::Draw()const
 	DrawGraph(scroll % 1280 - 1280, 0, background_image, TRUE);
 	DrawGraph(scroll % 1280, 0, background_image, TRUE);
 
-	enemyManager.Draw();
+	//enemyManager.Draw();
 
 	//DrawGraph(0, 0, background_image, FALSE);
 	DrawGraph(300, 70, title_image, TRUE);
@@ -179,13 +199,29 @@ void TitleScene::Draw()const
 	DrawRotaGraph(800, 350 + menu_cursor * 75, 0.7, DX_PI / 0.1, cursor_image, TRUE);
 	//std::string shifted_play_count = WStringToShiftJIS(play_count);
 	//DrawFormatString(0, 0, 0xffffff, "プレイ回数: %s", shifted_play_count.c_str());
-	DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: %d", play_count);
+
+	/*使用する文字コードを utf8 に設定*/
+	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_UTF8);
+
+	//DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: %d", play_count);
+
+	// play_countが-1以外の場合にのみプレイ回数を表示
+	if (play_count != -1) {
+		// プレイ回数の表示処理
+		DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: %d", play_count);
+	}
+	else
+	{
+		DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: 読み込み中...");
+	}
+	/*使用する文字コードを shift-jis に設定*/
+	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_SHIFTJIS);
 
 	const std::vector<guideElement> gamepad_guides = {
 					guideElement({"L"}, "移動", GUIDE_SHAPE_TYPE::JOYSTICK, buttonGuidFont, 0x000000,
 						 0xFFFFFF, 0xFFFFFF),
 guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,
-		 buttonGuidFont, 0xFFFFFF, 0xEBE146,
+		 buttonGuidFont, 0xFFFFFF, A_BUTTON_COLOR,
 		 0xEB3229, 0xFFFFFF),
 	};
 
@@ -193,13 +229,13 @@ guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,
 	DrawGuides(gamepad_guides, 505.0f, 660.0f, 5.0f, 60.0f);
 
 	//取得したランキングデータを描画する
-	for (int i = 0; i < 1; i++)
-	{
-		/*DrawFormatStringToHandle(50, 170 + i * 25, 0xffffff, buttonGuidFont, "%2d %-15s %6d",
-			ranking->GetRank(i), ranking->GetName(i), ranking->GetScore(i));*/
-			DrawFormatStringToHandle(50, 170 + i * 25, 0xffffff, buttonGuidFont, "前回のスコア：%6d",
-				ranking->GetScore(i));
-	}
+	//for (int i = 0; i < 1; i++)
+	//{
+	//	/*DrawFormatStringToHandle(50, 170 + i * 25, 0xffffff, buttonGuidFont, "%2d %-15s %6d",
+	//		ranking->GetRank(i), ranking->GetName(i), ranking->GetScore(i));*/
+	//		DrawFormatStringToHandle(50, 170 + i * 25, 0xffffff, buttonGuidFont, "前回のスコア：%6d",
+	//			ranking->GetScore(i));
+	//}
 }
 
 
@@ -208,7 +244,12 @@ void TitleScene::Finalize()
 {
 	//シーンの切り替えが行われたらBGMを止める
 	StopSoundMem(background_sound);
-	DeleteSoundMem(background_sound);
+
+	// 格納されたBGMと異なる場合は削除
+	if (GameData::GetPrevBGM() != background_sound)
+	{
+		DeleteSoundMem(background_sound);
+	}
 
 	DeleteSoundMem(enter_se);
 	DeleteSoundMem(cursor_move_se);

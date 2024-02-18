@@ -14,9 +14,9 @@ private:
 	int font_handle_h3;     //フォントハンドル
 	int font_handle_h4;     //フォントハンドル
 	int buttonGuidFont;     //ガイド表示用フォントハンドル
+	int question_font_handle;     // 問題用フォントハンドル
 	int answer_font_handle;     //選択肢表示用フォントハンドル
 	int score;            // スコア
-	int high_score;      // ハイスコア
 	int add_score;       // 追加するスコア
 	int background_image;     //背景画像
 	int idle_bgm;     //アイドル時のBGM
@@ -42,7 +42,6 @@ private:
 
 	// アニメーション用
 	int answer_anim;				// 正誤のアニメーション用
-	int size_anim_count;			// スケールアニメーション用
 
 	enum class Answer {
 		unanswered, //未回答
@@ -84,14 +83,6 @@ public:
 
 	virtual eSceneType GetNowScene() const override;
 
-	/// <summary>
-	/// 文字の描画するX座標が中心になるX座標を取得する。
-	/// </summary>
-	/// <param name="string">描画する文字列</param>
-	/// <param name="font_handle">描画に使用するフォントハンドル(未入力又は0の場合はデフォルトフォントハンドルを使用</param>
-	/// <param name="margin">中央のX座標に間隔を空ける値</param>
-	int GetDrawCenterX(const char* string, int font_handle = 0, int margin = 0)const;
-
 private:
 	// スコアを加算する
 	void AddScore();
@@ -101,8 +92,6 @@ private:
 	void CreateEnemy() const;
 	// 問題を生成
 	void CreateQuestion();
-	//ハイスコア読み込み処理
-	void ReadHighScore();
 	//当たり判定
 	bool IsHitCheck(Player* p, Enemy* e) const;
 	void BubbleSort(Enemy enemies[], int n) const;

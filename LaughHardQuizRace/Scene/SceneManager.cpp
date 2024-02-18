@@ -8,7 +8,7 @@
 #include "RankingDispScene.h"
 #include "RankingInputScene.h"
 
-SceneManager::SceneManager() :current_scene(nullptr)
+SceneManager::SceneManager() :current_scene(nullptr), is_first_draw_completed(false)
 {
 
 }
@@ -34,6 +34,10 @@ void SceneManager::Initialize()
 	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
 
 	SetGraphMode(1280, 720, 32);
+
+	is_first_draw_completed = false;
+	SetWindowVisibleFlag(FALSE);// 最初はウィンドウを表示させない
+	
 
 	SetAlwaysRunFlag(true);		//常にアクティブにする
 
@@ -121,12 +125,6 @@ void SceneManager::Update()
 				ChangeScene(next);
 			}
 		}
-
-		//ESCAPEキーが押されたら、ゲームを終了する
-		if (CheckHitKey(KEY_INPUT_ESCAPE) || InputControl::GetButtonUp(XINPUT_BUTTON_BACK))
-		{
-			break;
-		}
 	}
 }
 
@@ -158,6 +156,11 @@ void SceneManager::Draw()const
 
 	//裏画面の内容を表画面に反映
 	ScreenFlip();
+
+	if (!is_first_draw_completed) { // 最初の描画が完了していない場合
+		SetWindowVisibleFlag(TRUE); // 最初の描画が完了したらウィンドウを表示
+		is_first_draw_completed = true; // 最初の描画が完了したことを記録
+	}
 }
 
 

@@ -4,16 +4,18 @@
 #include <math.h>
 #include "../Utility/InputControl.h"
 #include "../Utility/Guide.h"
+#include "../Utility/GameData.h"
 
 #define QUESTION_NUM 40
 
-GameMainScene::GameMainScene() :high_score(0), background_image(NULL), scroll(0), player(nullptr), answer_anim(0), idle_bgm(0), board_image(0), score(0), add_score(0),
+GameMainScene::GameMainScene() :background_image(NULL), scroll(0), player(nullptr), answer_anim(0), idle_bgm(0), board_image(0), score(0), add_score(0),
 /*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false), selectMenu(0), clear_count(0), question_count(0),
-size_anim_count(0), currentState(State::idle), correct_se(0), cursor_move_se(0), wrong_se(0), enter_se(0), current_question_num(GetRand(QUESTION_NUM - 1))
+currentState(State::idle), correct_se(0), cursor_move_se(0), wrong_se(0), enter_se(0), current_question_num(GetRand(QUESTION_NUM - 1))
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 	font_handle_h4 = CreateFontToHandle("Segoe UI", 10, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
+	question_font_handle = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, 1);
 	answer_font_handle = CreateFontToHandle("Segoe UI", 40, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 
@@ -48,6 +50,7 @@ GameMainScene::~GameMainScene()
 	DeleteFontToHandle(font_handle_h2);
 	DeleteFontToHandle(font_handle_h3);
 	DeleteFontToHandle(font_handle_h4);
+	DeleteFontToHandle(question_font_handle);
 	DeleteFontToHandle(answer_font_handle);
 	DeleteFontToHandle(buttonGuidFont);
 
@@ -64,13 +67,10 @@ GameMainScene::~GameMainScene()
 //初期化処理
 void GameMainScene::Initialize()
 {
-	// 高得点値を読み込む
-	ReadHighScore();
 
 	// 画像の読み込み
 	background_image = LoadGraph("Resource/images/Scene/GameMain/background.png");
-	//barrier_image = LoadGraph(      "Resource/images/barrier.png");
-	const int result = LoadDivGraph("Resource/images/fish.png", 15, 3, 5, 200, 138,
+	const int result = LoadDivGraph("Resource/images/Scene/GameMain/fish.png", 15, 3, 5, 200, 138,
 		enemy_image);
 
 
@@ -99,7 +99,7 @@ void GameMainScene::Initialize()
 
 	if (result == -1)
 	{
-		throw("Resource/images/fish.pngがありません\n");
+		throw("Resource/images/Scene/GameMain/fish.pngがありません\n");
 	}
 
 	if (idle_bgm == -1)
@@ -162,9 +162,14 @@ eSceneType GameMainScene::Update()
 	//制限時間の経過
 	time_limit = GetNowCount() - start_count;
 
-	//制限時間が0以下になった場合、リザルト画面へ
-	if (time_limit > 0)
+	//制限時間が0以下になった場合、または問題が無くなった場合リザルト画面へ
+	if (time_limit >= 0 || question_count == MONDAI)
 	{
+		// 残り時間を0にする。
+		time_limit = 0;
+		// GameDataにスコアを保存
+		GameData::SetScore(score);
+
 		clear_flg = true;
 		return eSceneType::E_RESULT;
 	}
@@ -216,7 +221,7 @@ eSceneType GameMainScene::Update()
 			//正解だった場合、clear_countを加算し、スコアを加算させる
 			else if (answer == Answer::correct) {
 
-				time_limit += 1000 * 1;
+				start_count += 1000 * 1;
 				clear_count++;
 
 				// スコアを加算
@@ -249,12 +254,6 @@ eSceneType GameMainScene::Update()
 			SetState(State::idle);
 		}
 
-	}
-
-
-	// 問題文のスケールアニメーションの更新
-	if (size_anim_count < 60) {
-		size_anim_count++;
 	}
 
 	if (IsStateChanged()) {
@@ -337,7 +336,7 @@ eSceneType GameMainScene::Update()
 				// ガイド表示を更新
 				gamepad_guides = {
 					guideElement({"L"}, "選択", GUIDE_SHAPE_TYPE::JOYSTICK, buttonGuidFont, 0x000000,0xFFFFFF, 0xFFFFFF),
-					guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,buttonGuidFont, 0xFFFFFF, 0xEBE146,0xEB3229, 0xFFFFFF),
+					guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,buttonGuidFont, 0xFFFFFF, A_BUTTON_COLOR,0xEB3229, 0xFFFFFF),
 				};
 
 				// エネミーに当たった場合、ステートを問題に変更
@@ -354,26 +353,6 @@ eSceneType GameMainScene::Update()
 		board_effect.Update(60);
 		//board.Update(60);
 	}
-
-	// Stateチェック
-//switch (currentState)
-//{
-//	// 待機状態
-//case State::idle:
-//	printfDx("idle\n");
-//	break;
-
-//case State::question:
-//	printfDx("question\n");
-//	break;
-
-//case State::answer:
-//	printfDx("answer\n");
-//	break;
-
-//default:
-//	break;
-//}
 
 	return GetNowScene();
 }
@@ -434,12 +413,10 @@ void GameMainScene::Draw()const
 			//DrawExtendGraph(canvas_x1, canvas_y1, canvas_x2, canvas_y2, paper_image, TRUE);
 
 
-			DrawExtendFormatString2ToHandle(canvas_x1 + 30, canvas_y1, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
-				0xFF0000, 0xFFFFFF, font_handle_h2, "%2d問目", question_count + 1);
+			DrawFormatString2ToHandle(canvas_x1 + 30, canvas_y1, 0xFF0000, 0xFFFFFF, question_font_handle, "%2d問目", question_count + 1);
 
 			//問題 描画
-			DrawExtendFormatString2ToHandle(GetDrawCenterX(question->GetQuestion(current_question_num).c_str(), font_handle_h2), canvas_y1 + 100,
-				/*size_anim_count * 0.01 + 0.2*/1.0f, size_anim_count * 0.01 + 0.2, 0xF5A000, 0xEFBD00, font_handle_h2, "%s",
+			DrawFormatString2ToHandle(GetDrawCenterX(question->GetQuestion(current_question_num).c_str(), font_handle_h2), canvas_y1 + 100,0xF5A000, 0xffffff, question_font_handle, "%s",
 				question->GetQuestion(current_question_num).c_str());
 
 			// 選択肢 描画
@@ -454,11 +431,8 @@ void GameMainScene::Draw()const
 				a_font = answer_font_handle;
 			}
 
-			DrawExtendFormatString2ToHandle(canvas_x1 + 30, 400, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
-				0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
-				a1.c_str());
-			DrawExtendFormatString2ToHandle(canvas_x1 + 30, 470, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
-				0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
+			DrawFormatString2ToHandle(GetDrawCenterX(a1.c_str(), a_font), 420, 0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, a_font, "%s", a1.c_str());
+			DrawFormatString2ToHandle(GetDrawCenterX(a1.c_str(), a_font), 490, 0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, a_font, "%s",
 				a2.c_str());
 		}
 	}
@@ -493,18 +467,6 @@ void GameMainScene::Draw()const
 	//	printfDx("-----------------------\n");
 	//}
 
-
-
-
-	//! DEBUG エネミー
-	//for (int i = 0; i < 2; i++)
-	//{
-	//	if (enemy[i] != nullptr) {
-	//		const int lane = static_cast<int>((enemy[i]->GetLocation().x - 40) / 105) + 1;
-	//		DrawFormatString(100, 20 + i * 20, 0xffffff, "Enemy: レーン：%d x %f , y %f", lane, enemy[i]->GetLocation().x, enemy[i]->GetLocation().y);
-	//	}
-	//}
-
 }
 
 
@@ -512,28 +474,7 @@ void GameMainScene::Draw()const
 void GameMainScene::Finalize()
 {
 
-	//リザルトデータの書き込み
-	FILE* fp = nullptr;
-	//ファイルオープン
-	errno_t result = fopen_s(&fp, "Resource/dat/result_data.csv", "w");
 
-	//エラーチェック
-	if (result != 0)
-	{
-		throw("Resource/dat/result_data.csvが開けません\n");
-	}
-
-	//スコアを保存
-	fprintf(fp, "%d,\n", score);
-
-	// 避けた数と得点を保存
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	fprintf(fp, "%d,\n", enemy_count[i]);
-	//}
-
-	//ファイルクローズ
-	fclose(fp);
 
 	//動的確保したオブジェクトを削除する
 	player->Finalize();
@@ -559,23 +500,6 @@ eSceneType GameMainScene::GetNowScene()const
 }
 
 
-int GameMainScene::GetDrawCenterX(const char* string, int font_handle, int margin)const {
-
-	//画面幅
-	constexpr int screenX = 1280;
-
-	if (margin >= screenX || margin <= -screenX) {
-		margin = 0;
-	}
-
-	if (font_handle == 0) {
-		font_handle = DX_DEFAULT_FONT_HANDLE;
-	}
-
-
-	const int w = screenX / 2 + margin - (GetDrawFormatStringWidthToHandle(font_handle, string) / 2);
-	return w;
-}
 
 void GameMainScene::AddScore()
 {
@@ -687,7 +611,7 @@ void GameMainScene::CreateEnemy() const
 				break;
 			case 3:
 				// 難易度3の場合
-				type = 12 + GetRand(2); // 12または13の乱数
+				type = 12 + GetRand(1); // 12または13の乱数
 				break;
 			default:
 				// それ以外の難易度の場合、typeは0とする
@@ -719,13 +643,6 @@ void GameMainScene::CreateQuestion()
 
 		current_question_num = GetRand(QUESTION_NUM - 1);
 
-		//printfDx("current_question_num:%d", current_question_num);
-		////デバッグ
-		//for (int num : question_num) {
-		//	printfDx("[%d]", num);
-
-					//解答をリセット
-
 	}
 
 	// 解答のアニメーション用に現在の経過時間を格納
@@ -733,17 +650,6 @@ void GameMainScene::CreateQuestion()
 
 	//次の問題番号をプッシュ
 	question_num.push_back(current_question_num);
-}
-
-//ハイスコア読み込み
-void GameMainScene::ReadHighScore()
-{
-	RankingData data;
-	data.Initialize();
-
-	high_score = data.GetScore(0);
-
-	data.Finalize();
 }
 
 
