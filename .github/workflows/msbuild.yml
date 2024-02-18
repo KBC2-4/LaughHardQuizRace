@@ -47,7 +47,7 @@ jobs:
       run: |
         msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} `
         /p:DXLIB_DIR="${{ env.DXLIB_DIR }}" `
-        /p:IncludePath="${{ env.CPPRESTSDK_DIR }}/include;$(IncludePath)" `
-        /p:LibraryPath="${{ env.CPPRESTSDK_DIR }}/lib;$(LibraryPath)" `
+        /p:IncludePath="${{ env.CPPRESTSDK_DIR }}/include;$$(IncludePath)" `
+        /p:LibraryPath="${{ env.CPPRESTSDK_DIR }}/lib;$$(LibraryPath)" `
         /p:AdditionalLibraryDirectories="${{ env.CPPRESTSDK_DIR }}/lib" `
         ${{ env.SOLUTION_FILE_PATH }}
