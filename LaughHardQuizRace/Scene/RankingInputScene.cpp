@@ -30,17 +30,53 @@ void RankingInputScene::Initialize()
 		throw("Resource/images/Scene/Ranking/background.pngがありません\n");
 	}
 
-	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
+	char_font_handle = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
+	font_handle_h2 = CreateFontToHandle("Segoe UI", 80, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, 5);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 	font_handle_h1 = CreateFontToHandle("Segoe UI", 100, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
+
+
+	// ランキング入力画面よりも前に同じBGMは使用していないため、初期化
+	GameData::SetPrevBGM(-1);
+
+	//BGMの読み込み
+	// 前回の再生途中のBGMそれを再生
+	if (GameData::GetPrevBGM() == -1)
+	{
+		background_sound = LoadSoundMem("Resource/sounds/bgm/ranking.mp3");
+		if (background_sound == -1)
+		{
+			throw("Resource/sounds/bgm/ranking.mp3がありません\n");
+		}
+	}
+	else
+	{
+		background_sound = GameData::GetPrevBGM();
+	}
+
+	enter_se = LoadSoundMem("Resource/sounds/se/enter.mp3");
+	cursor_move_se = LoadSoundMem("Resource/sounds/se/cursor_move.mp3");
+
+	if (enter_se == -1)
+	{
+		throw("Resource/sounds/se/enter.mp3がありません\n");
+	}
+
+	if (cursor_move_se == -1)
+	{
+		throw("Resource/sounds/se/cursor_move.mp3がありません\n");
+	}
 
 	//メモリの動的確保
 	ranking = new RankingData;
 	ranking->Initialize();
 
 	// スコアの取得
-	this->score = GameData::GetScore();;
+	this->score = GameData::GetScore();
+
+	//BGMの再生
+	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
 }
 
 
@@ -55,6 +91,13 @@ eSceneType RankingInputScene::Update()
 	//シーン変更は可能か?
 	if (is_change)
 	{
+		//// SE再生
+		//PlaySoundMem(enter_se, DX_PLAYTYPE_BACK, TRUE);
+		//SEが鳴り終わってから画面推移する。
+		while (CheckSoundMem(enter_se)) {}
+		// 前回のBGMのハンドルを格納
+		GameData::SetPrevBGM(background_sound);
+
 		//ランキング表示に遷移
 		return eSceneType::E_RANKING_DISP;
 	}
@@ -72,9 +115,14 @@ void RankingInputScene::Draw()const
 	DrawGraph(0, 0, backgrouond_image, TRUE);
 
 	//名前入力指示文字列の描画
-	DrawStringToHandle(380, 50, "ランキングに登録します", 0xffffff, font_handle_h2, 0x000000);
-	DrawStringToHandle(330, 150, "※上位10位以内に入らない場合でもスプレッドシートに記録されます。", 0xffffff, font_handle_h3, 0x000000);
-	DrawFormatString2ToHandle(300, 220, 0x000000, 0xffffff, font_handle_h2, ">%s", name);
+	DrawStringToHandle(GetDrawCenterX("ランキングに登録します", font_handle_h2), 50, "ランキングに登録します",
+		0xF0BD01, font_handle_h2, 0xffffff);
+	DrawStringToHandle(GetDrawCenterX("※上位10位以内に入らない場合でもスプレッドシートに記録されます。",font_handle_h3),
+		150, "※上位10位以内に入らない場合でもスプレッドシートに記録されます。", 0xffffff, font_handle_h3, 0xED7332);
+	
+	std::string result = ">" + std::string(name) + "　";
+
+	DrawFormatString2ToHandle(GetDrawCenterX(result.c_str(), font_handle_h2), 190, 0x000000, 0xffffff, font_handle_h2, ">%s", name);
 
 	//選択用文字を描画
 	const int font_size = 55;
@@ -82,14 +130,14 @@ void RankingInputScene::Draw()const
 	{
 		int x = (i % 13) * font_size + 305;
 		int y = (i / 13) * font_size + 300;
-		DrawFormatStringToHandle(x, y, 0x000000, font_handle_h2, "%-3c", 'a' + i);
+		DrawFormatString2ToHandle(x, y, 0x329FED, 0xffffff, char_font_handle, "%-3c", 'a' + i);
 		y = ((i / 13) + 2) * font_size + 300;
-		DrawFormatStringToHandle(x, y, 0x000000, font_handle_h2, "%-3c", 'A' + i);
+		DrawFormatString2ToHandle(x, y, 0x329FED, 0xffffff, char_font_handle, "%-3c", 'A' + i);
 	}
 
 	constexpr int enter_x = 580;
 	constexpr int enter_y = 580;
-	DrawStringToHandle(enter_x, enter_y, "決定", 0xffffff, font_handle_h2);
+	DrawStringToHandle(enter_x, enter_y, "決定", 0xffffff, char_font_handle, 0x000000);
 
 	//選択文字をフォーカスする
 	if (cursor_y < 4)
@@ -121,8 +169,17 @@ guideElement({"B"}, "1文字削除", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,buttonGuidFont, 
 //終了時処理
 void RankingInputScene::Finalize()
 {
-	//ランキングにデータを格納
-	//ranking->SetRankingData(score, name);
+	//シーンの切り替えが行われたらBGMを止める
+	StopSoundMem(background_sound);
+
+	// 格納されたBGMと異なる場合は削除
+	if (GameData::GetPrevBGM() != background_sound)
+	{
+		DeleteSoundMem(background_sound);
+	}
+
+	DeleteSoundMem(enter_se);
+	DeleteSoundMem(cursor_move_se);
 
 	// スクリプトIDを設定
 	SpreadsheetClient client(L"AKfycbyCbERdoRMfYxiJLrMaQMS1grPSBHRDSPtoPvH0yrY-7QTZjRLeBYgBqA8zTUY56GtL");
@@ -137,6 +194,7 @@ void RankingInputScene::Finalize()
 	DeleteGraph(backgrouond_image);
 
 	// フォントの削除
+	DeleteFontToHandle(char_font_handle);
 	DeleteFontToHandle(font_handle_h2);
 	DeleteFontToHandle(font_handle_h3);
 	DeleteFontToHandle(font_handle_h1);
@@ -183,6 +241,9 @@ bool RankingInputScene::InputName()
 	//カーソル操作処理
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_LEFT) || direction == StickDirection::Left)
 	{
+		// SE再生
+		PlaySoundMem(cursor_move_se, DX_PLAYTYPE_BACK, TRUE);
+
 		if (cursor_y == 4) {
 			// 何もしない
 		}
@@ -195,6 +256,9 @@ bool RankingInputScene::InputName()
 	}
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_RIGHT) || direction == StickDirection::Right)
 	{
+		// SE再生
+		PlaySoundMem(cursor_move_se, DX_PLAYTYPE_BACK, TRUE);
+
 		if (cursor_y == 4 && cursor_x == 0) {
 			// 何もしない
 		}
@@ -213,6 +277,9 @@ bool RankingInputScene::InputName()
 	}
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) || direction == StickDirection::Up)
 	{
+		// SE再生
+		PlaySoundMem(cursor_move_se, DX_PLAYTYPE_BACK, TRUE);
+
 		if (cursor_y > 0)
 		{
 			cursor_y--;
@@ -224,6 +291,9 @@ bool RankingInputScene::InputName()
 	}
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) || direction == StickDirection::Down)
 	{
+		// SE再生
+		PlaySoundMem(cursor_move_se, DX_PLAYTYPE_BACK, TRUE);
+
 		if (cursor_y < 4)
 		{
 			cursor_y++;
@@ -237,6 +307,9 @@ bool RankingInputScene::InputName()
 	//カーソル位置の文字を決定する
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_A))
 	{
+		// SE再生
+		PlaySoundMem(enter_se, DX_PLAYTYPE_BACK, TRUE);
+
 		// 名前の長さが6文字未満の場合のみ、文字を追加
 		if (name_num < 6) {
 			if (cursor_y < 2)
