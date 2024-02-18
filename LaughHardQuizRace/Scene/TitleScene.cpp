@@ -64,10 +64,7 @@ void TitleScene::Initialize()
 	}
 
 	// スプレッドシートのデータを取得
-	client.GetSpreadsheetData();
-
-	// スプレッドシートにデータを書き込み
-	//client.PostSpreadsheetData(L"player123", 1000);
+	//client.GetSpreadsheetData();
 
 	const auto task = client.GetPlayCount();
 	// 非同期タスクの結果を同期的に待つ
@@ -186,7 +183,7 @@ void TitleScene::Draw()const
 					guideElement({"L"}, "移動", GUIDE_SHAPE_TYPE::JOYSTICK, buttonGuidFont, 0x000000,
 						 0xFFFFFF, 0xFFFFFF),
 guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,
-		 buttonGuidFont, 0xFFFFFF, 0xEBE146,
+		 buttonGuidFont, 0xFFFFFF, A_BUTTON_COLOR,
 		 0xEB3229, 0xFFFFFF),
 	};
 

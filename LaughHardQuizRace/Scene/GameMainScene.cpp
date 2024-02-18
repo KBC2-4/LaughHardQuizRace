@@ -338,7 +338,7 @@ eSceneType GameMainScene::Update()
 				// ガイド表示を更新
 				gamepad_guides = {
 					guideElement({"L"}, "選択", GUIDE_SHAPE_TYPE::JOYSTICK, buttonGuidFont, 0x000000,0xFFFFFF, 0xFFFFFF),
-					guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,buttonGuidFont, 0xFFFFFF, 0xEBE146,0xEB3229, 0xFFFFFF),
+					guideElement({"A"}, "決定", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,buttonGuidFont, 0xFFFFFF, A_BUTTON_COLOR,0xEB3229, 0xFFFFFF),
 				};
 
 				// エネミーに当たった場合、ステートを問題に変更
@@ -481,22 +481,7 @@ void GameMainScene::Draw()const
 void GameMainScene::Finalize()
 {
 
-	//リザルトデータの書き込み
-	FILE* fp = nullptr;
-	//ファイルオープン
-	errno_t result = fopen_s(&fp, "Resource/dat/result_data.csv", "w");
 
-	//エラーチェック
-	if (result != 0)
-	{
-		throw("Resource/dat/result_data.csvが開けません\n");
-	}
-
-	//スコアを保存
-	fprintf(fp, "%d,\n", score);
-
-	//ファイルクローズ
-	fclose(fp);
 
 	//動的確保したオブジェクトを削除する
 	player->Finalize();
@@ -650,7 +635,7 @@ void GameMainScene::CreateEnemy() const
 				break;
 			case 3:
 				// 難易度3の場合
-				type = 12 + GetRand(2); // 12または13の乱数
+				type = 12 + GetRand(1); // 12または13の乱数
 				break;
 			default:
 				// それ以外の難易度の場合、typeは0とする

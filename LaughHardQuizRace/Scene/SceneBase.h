@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 
+#define A_BUTTON_COLOR 0xF03A32
 
 struct guideElement;
 

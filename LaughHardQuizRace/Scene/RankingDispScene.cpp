@@ -149,7 +149,7 @@ void RankingDispScene::Draw()const
 
 	const std::vector<guideElement> gamepad_guides = {
 guideElement({"A"}, "ƒ^ƒCƒgƒ‹‚Ö", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,
-		 buttonGuidFont, 0xFFFFFF, 0xEBE146,
+		 buttonGuidFont, 0xFFFFFF, A_BUTTON_COLOR,
 		 0xEB3229, 0xFFFFFF),
 	};
 

@@ -7,6 +7,10 @@ class RankingInputScene:public SceneBase
 {
 private:
 	int backgrouond_image;   //背景画像
+	int font_handle_h2;     // フォントハンドル
+	int font_handle_h3;     // フォントハンドル
+	int font_handle_h1;     // フォントハンドル
+	int buttonGuidFont;     // ガイド表示用フォントハンドル
 	RankingData* ranking;    //ランキング情報
 	int score;               //スコア
 	char name[15];           //名前
@@ -28,5 +32,7 @@ public:
 private:
 	//名前入力処理
 	bool InputName();
+	// char配列をstd::wstringに変換する
+	std::wstring CharArrayToWString(const char* charArray);
 };
 

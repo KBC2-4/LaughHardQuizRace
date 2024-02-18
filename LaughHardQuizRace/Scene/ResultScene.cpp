@@ -53,7 +53,7 @@ eSceneType ResultScene::Update()
 	if (InputControl::GetButtonDown(XINPUT_BUTTON_A))
 	{
 		//return eSceneType::E_TITLE;
-		//return eSceneType::E_RANKING_INPUT;
+		return eSceneType::E_RANKING_INPUT;
 	}
 
 	return GetNowScene();
@@ -70,8 +70,8 @@ void ResultScene::Draw()const
 	DrawFormatString2ToHandle(370, 430, 0xE6106E, 0x10E617, font_handle_h2, "%6d", score);
 
 	const std::vector<guideElement> gamepad_guides = {
-guideElement({"A"}, "タイトルへ", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,
-		 buttonGuidFont, 0xFFFFFF, 0xEBE146,
+guideElement({"A"}, "ランキング入力画面へ", GUIDE_SHAPE_TYPE::FIXED_CIRCLE,
+		 buttonGuidFont, 0xFFFFFF, A_BUTTON_COLOR,
 		 0xEB3229, 0xFFFFFF),
 	};
 
