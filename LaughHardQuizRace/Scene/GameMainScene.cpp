@@ -10,11 +10,12 @@
 
 GameMainScene::GameMainScene() :background_image(NULL), scroll(0), player(nullptr), answer_anim(0), idle_bgm(0), board_image(0), score(0), add_score(0),
 /*question("Resource/dat/question.csv"), */ time_limit(0), start_count(GetNowCount() + 1000 * 100), clear_flg(false), selectMenu(0), clear_count(0), question_count(0),
-size_anim_count(0), currentState(State::idle), correct_se(0), cursor_move_se(0), wrong_se(0), enter_se(0), current_question_num(GetRand(QUESTION_NUM - 1))
+currentState(State::idle), correct_se(0), cursor_move_se(0), wrong_se(0), enter_se(0), current_question_num(GetRand(QUESTION_NUM - 1))
 {
 	font_handle_h2 = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	font_handle_h3 = CreateFontToHandle("Segoe UI", 20, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 	font_handle_h4 = CreateFontToHandle("Segoe UI", 10, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
+	question_font_handle = CreateFontToHandle("Segoe UI", 50, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, 1);
 	answer_font_handle = CreateFontToHandle("Segoe UI", 40, 2, DX_FONTTYPE_ANTIALIASING_EDGE_8X8, -1, -1, 1);
 	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 
@@ -49,6 +50,7 @@ GameMainScene::~GameMainScene()
 	DeleteFontToHandle(font_handle_h2);
 	DeleteFontToHandle(font_handle_h3);
 	DeleteFontToHandle(font_handle_h4);
+	DeleteFontToHandle(question_font_handle);
 	DeleteFontToHandle(answer_font_handle);
 	DeleteFontToHandle(buttonGuidFont);
 
@@ -160,9 +162,11 @@ eSceneType GameMainScene::Update()
 	//制限時間の経過
 	time_limit = GetNowCount() - start_count;
 
-	//制限時間が0以下になった場合、リザルト画面へ
-	if (time_limit >= 0)
+	//制限時間が0以下になった場合、または問題が無くなった場合リザルト画面へ
+	if (time_limit >= 0 || question_count == MONDAI)
 	{
+		// 残り時間を0にする。
+		time_limit = 0;
 		// GameDataにスコアを保存
 		GameData::SetScore(score);
 
@@ -217,7 +221,7 @@ eSceneType GameMainScene::Update()
 			//正解だった場合、clear_countを加算し、スコアを加算させる
 			else if (answer == Answer::correct) {
 
-				time_limit += 1000 * 1;
+				start_count += 1000 * 1;
 				clear_count++;
 
 				// スコアを加算
@@ -250,12 +254,6 @@ eSceneType GameMainScene::Update()
 			SetState(State::idle);
 		}
 
-	}
-
-
-	// 問題文のスケールアニメーションの更新
-	if (size_anim_count < 60) {
-		size_anim_count++;
 	}
 
 	if (IsStateChanged()) {
@@ -415,12 +413,10 @@ void GameMainScene::Draw()const
 			//DrawExtendGraph(canvas_x1, canvas_y1, canvas_x2, canvas_y2, paper_image, TRUE);
 
 
-			DrawExtendFormatString2ToHandle(canvas_x1 + 30, canvas_y1, size_anim_count * 0.01 + 0.4, size_anim_count * 0.01 + 0.4,
-				0xFF0000, 0xFFFFFF, font_handle_h2, "%2d問目", question_count + 1);
+			DrawFormatString2ToHandle(canvas_x1 + 30, canvas_y1, 0xFF0000, 0xFFFFFF, question_font_handle, "%2d問目", question_count + 1);
 
 			//問題 描画
-			DrawExtendFormatString2ToHandle(GetDrawCenterX(question->GetQuestion(current_question_num).c_str(), font_handle_h2), canvas_y1 + 100,
-				/*size_anim_count * 0.01 + 0.2*/1.0f, size_anim_count * 0.01 + 0.2, 0xF5A000, 0xEFBD00, font_handle_h2, "%s",
+			DrawFormatString2ToHandle(GetDrawCenterX(question->GetQuestion(current_question_num).c_str(), font_handle_h2), canvas_y1 + 100,0xF5A000, 0xffffff, question_font_handle, "%s",
 				question->GetQuestion(current_question_num).c_str());
 
 			// 選択肢 描画
@@ -435,11 +431,8 @@ void GameMainScene::Draw()const
 				a_font = answer_font_handle;
 			}
 
-			DrawExtendFormatString2ToHandle(canvas_x1 + 30, 400, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
-				0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
-				a1.c_str());
-			DrawExtendFormatString2ToHandle(canvas_x1 + 30, 470, (size_anim_count * 0.01 + 0.4), (size_anim_count * 0.01 + 0.4),
-				0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, a_font, "%6s",
+			DrawFormatString2ToHandle(GetDrawCenterX(a1.c_str(), a_font), 420, 0x00bfff, selectMenu == 0 ? 0x00FFE1 : 0x0000cd, a_font, "%s", a1.c_str());
+			DrawFormatString2ToHandle(GetDrawCenterX(a1.c_str(), a_font), 490, 0x00bfff, selectMenu == 1 ? 0x00FFE1 : 0x0000cd, a_font, "%s",
 				a2.c_str());
 		}
 	}
@@ -505,6 +498,8 @@ eSceneType GameMainScene::GetNowScene()const
 {
 	return eSceneType::E_MAIN;
 }
+
+
 
 void GameMainScene::AddScore()
 {

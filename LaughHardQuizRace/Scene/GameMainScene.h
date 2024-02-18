@@ -14,6 +14,7 @@ private:
 	int font_handle_h3;     //フォントハンドル
 	int font_handle_h4;     //フォントハンドル
 	int buttonGuidFont;     //ガイド表示用フォントハンドル
+	int question_font_handle;     // 問題用フォントハンドル
 	int answer_font_handle;     //選択肢表示用フォントハンドル
 	int score;            // スコア
 	int add_score;       // 追加するスコア
@@ -41,7 +42,6 @@ private:
 
 	// アニメーション用
 	int answer_anim;				// 正誤のアニメーション用
-	int size_anim_count;			// スケールアニメーション用
 
 	enum class Answer {
 		unanswered, //未回答
