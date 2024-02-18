@@ -8,9 +8,13 @@ private:
 	int background_sound;		//BGM
 	int background_image;      //背景画像
 	int font_handle_h1;     //フォントハンドル
-	int font_handle_h2;     //フォントハンドル
+	int score_font_handle;     //フォントハンドル
+	int font_handle_h3;     //フォントハンドル
 	int buttonGuidFont;     //ガイド表示用フォントハンドル
+	int enter_se;        //決定 音声ハンドル
 	int score;            //スコア
+	bool is_score_in_top10; //スコアがランキングインしたかどうか
+	bool data_loaded; //データがロードされたかどうか
 
 public:
 	ResultScene();
