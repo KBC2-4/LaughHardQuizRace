@@ -129,7 +129,7 @@ eSceneType TitleScene::Update()
 		// SEÄ¶
 		PlaySoundMem(enter_se, DX_PLAYTYPE_BACK, TRUE);
 		//SE‚ª–Â‚èI‚í‚Á‚Ä‚©‚ç‰æ–Ê„ˆÚ‚·‚éB
-		/*while (CheckSoundMem(enter_se)) {}*/
+		while (CheckSoundMem(enter_se)) {}
 
 		switch (menu_cursor)
 		{
