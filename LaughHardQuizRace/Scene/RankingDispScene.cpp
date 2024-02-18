@@ -100,6 +100,11 @@ void RankingDispScene::Draw()const
 	//}
 	//}
 
+	if(rawData.empty())
+	{
+		DrawStringToHandle(370, 200, "読み込み中...", 0x0C74FF, font_handle_h1, 0xffffff);
+	}
+
 	constexpr int base_x = 240;
 	constexpr int base_y = 60;
 
@@ -138,11 +143,11 @@ void RankingDispScene::Draw()const
 	}
 	catch (nlohmann::json::parse_error& e) {
 		// パースエラー
-		printfDx("JSON Parse Error: %s\n", e.what());
+		std::cerr << "JSON Parse Error: " << e.what() << std::endl;
 	}
 	catch (...) {
 		// その他のエラー
-		printfDx("エラーが発生しました。\n");
+		std::cerr << "エラーが発生しました。\n";
 	}
 
 

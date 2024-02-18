@@ -49,9 +49,15 @@ void SpreadsheetClient::PostSpreadsheetData(const std::wstring& playerId, int sc
     postData[U("playerId")] = json::value::string(playerId);
     postData[U("score")] = json::value::number(score);
 
+    // 非同期リクエストを送信
     client.request(methods::POST, U(""), postData.serialize(), U("application/json")).then([](http_response response) {
         if (response.status_code() == status_codes::OK) {
+            // 成功した場合の処理
             std::wcout << U("データは正常にPOSTされました。") << std::endl;
         }
-        }).wait();
+        else {
+            // エラー処理
+            std::wcout << U("データのPOSTに失敗しました。") << std::endl;
+        }
+        });
 }

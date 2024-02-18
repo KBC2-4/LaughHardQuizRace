@@ -4,7 +4,8 @@
 #include "../Utility/Guide.h"
 
 TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL), background_sound(NULL),
-cursor_image(NULL), menu_cursor(0),cursor_move_se(0),enter_se(0), client(L"AKfycbyCbERdoRMfYxiJLrMaQMS1grPSBHRDSPtoPvH0yrY-7QTZjRLeBYgBqA8zTUY56GtL")
+cursor_image(NULL), menu_cursor(0), cursor_move_se(0), enter_se(0), play_count(-1), buttonGuidFont(0), ranking(nullptr),
+client(L"AKfycbyCbERdoRMfYxiJLrMaQMS1grPSBHRDSPtoPvH0yrY-7QTZjRLeBYgBqA8zTUY56GtL")
 {
 	buttonGuidFont = CreateFontToHandle("メイリオ", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 
@@ -66,9 +67,14 @@ void TitleScene::Initialize()
 	// スプレッドシートのデータを取得
 	//client.GetSpreadsheetData();
 
-	const auto task = client.GetPlayCount();
-	// 非同期タスクの結果を同期的に待つ
-	play_count = task.get();
+	//const auto task = client.GetPlayCount();
+	//// 非同期タスクの結果を同期的に待つ
+	//play_count = task.get();
+
+	// 非同期にプレイ回数を取得
+	auto task = client.GetPlayCount().then([this](int count) {
+		play_count = count;
+		});
 
 	//BGMの再生
 	PlaySoundMem(background_sound, DX_PLAYTYPE_LOOP, FALSE);
@@ -86,10 +92,11 @@ eSceneType TitleScene::Update()
 {
 
 	// 背景画像を無限スクロール
-	if(scroll <= 1280)
+	if (scroll <= 1280)
 	{
 		scroll++;
-	}else
+	}
+	else
 	{
 		scroll = 0;
 	}
@@ -98,7 +105,7 @@ eSceneType TitleScene::Update()
 	const StickDirection direction = InputControl::GetLStickDirection(20000, 10);
 
 	//カーソル下移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) 
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_DOWN)
 		|| direction == StickDirection::Down)
 	{
 		// SE再生
@@ -108,7 +115,7 @@ eSceneType TitleScene::Update()
 
 
 	//カーソル上移動
-	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP) 
+	if (InputControl::GetButtonDown(XINPUT_BUTTON_DPAD_UP)
 		|| direction == StickDirection::Up)
 	{
 		// SE再生
@@ -126,20 +133,30 @@ eSceneType TitleScene::Update()
 
 		switch (menu_cursor)
 		{
-			case 0:
-				// プレイ回数をインクリメント
-				client.IncrementPlayCount();
-				
-				return eSceneType::E_MAIN;
-				
-			case 1:
-				return eSceneType::E_RANKING_DISP;
+		case 0:
+			// プレイ回数をインクリメント
+			//client.IncrementPlayCount();
+			// プレイ回数をインクリメント（バックグラウンドで実行）
+			client.IncrementPlayCount().then([](pplx::task<void> t) {
+				try {
+					t.get(); // エラーをキャッチ
+					std::wcout << U("プレイ回数をインクリメントしました。") << std::endl;
+				}
+				catch (...) {
+					// エラー処理
+					std::cerr << "プレイ回数のインクリメントに失敗しました。" << std::endl;
+				}
+				});
+			return eSceneType::E_MAIN;
 
-			case 2:
-				return eSceneType::E_HELP;
+		case 1:
+			return eSceneType::E_RANKING_DISP;
 
-			case 3:
-				return eSceneType::E_END;
+		case 2:
+			return eSceneType::E_HELP;
+
+		case 3:
+			return eSceneType::E_END;
 		}
 	}
 
@@ -175,7 +192,16 @@ void TitleScene::Draw()const
 	/*使用する文字コードを utf8 に設定*/
 	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_UTF8);
 
-	DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: %d", play_count);
+	//DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: %d", play_count);
+
+	// play_countが-1以外の場合にのみプレイ回数を表示
+	if (play_count != -1) {
+		// プレイ回数の表示処理
+		DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: %d", play_count);
+	}else
+	{
+		DrawFormatStringToHandle(50, 100, 0xffffff, buttonGuidFont, "プレイ回数: 読み込み中...");
+	}
 	/*使用する文字コードを shift-jis に設定*/
 	//SetUseCharCodeFormat(DX_CHARCODEFORMAT_SHIFTJIS);
 

@@ -5,7 +5,8 @@
 class RankingData
 {
 private:
-	std::wstring data;
+	std::wstring data;	// ランキングデータ
+	bool data_loaded;	// データが取得されたかどうかのフラグ
 
 
 public:
