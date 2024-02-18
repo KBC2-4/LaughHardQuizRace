@@ -34,7 +34,8 @@ void SpreadsheetClient::GetSpreadsheetData() {
 }
 
 pplx::task<std::wstring> SpreadsheetClient::GetRanking() {
-    return client.request(methods::GET, U("?action=getTop10Ranking")).then([](http_response response) -> std::wstring {
+    return client.request(methods::GET, U("?action=getTop10Ranking"))
+	.then([](http_response response) -> std::wstring {
         if (response.status_code() == status_codes::OK) {
             // JSON形式のランキングデータを文字列で取得
             return response.extract_string().get();
@@ -50,7 +51,8 @@ void SpreadsheetClient::PostSpreadsheetData(const std::wstring& playerId, int sc
     postData[U("score")] = json::value::number(score);
 
     // 非同期リクエストを送信
-    client.request(methods::POST, U(""), postData.serialize(), U("application/json")).then([](http_response response) {
+    client.request(methods::POST, U(""), postData.serialize(), U("application/json"))
+	.then([](http_response response) {
         if (response.status_code() == status_codes::OK) {
             // 成功した場合の処理
             std::wcout << U("データは正常にPOSTされました。") << std::endl;
@@ -60,4 +62,20 @@ void SpreadsheetClient::PostSpreadsheetData(const std::wstring& playerId, int sc
             std::wcout << U("データのPOSTに失敗しました。") << std::endl;
         }
         });
+}
+
+pplx::task<bool> SpreadsheetClient::IsScoreInTop10(int score)
+{
+    return client.request(methods::GET, U("?action=isScoreInTop10&score=") + std::to_wstring(score))
+	.then([](http_response response) -> pplx::task<std::wstring> {
+        if (response.status_code() == status_codes::OK) {
+            return response.extract_string();
+        }
+        // エラー処理
+        std::wcout << U("ランキングデータの取得に失敗しました") << std::endl;
+
+        }).then([](std::wstring responseBody) -> bool {
+            // GASからのレスポンスは "true" または "false" の文字列として返される
+            return responseBody == L"true";
+            });
 }

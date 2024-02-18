@@ -19,7 +19,7 @@ RankingData::~RankingData()
 void RankingData::Initialize()
 {
 	// スクリプトIDを設定
-	SpreadsheetClient client(L"AKfycbyCbERdoRMfYxiJLrMaQMS1grPSBHRDSPtoPvH0yrY-7QTZjRLeBYgBqA8zTUY56GtL");
+	SpreadsheetClient client(L"AKfycbwTncJE7fNBzWd4aZqG7Q7_ysP9XTNcV91VlStNzjDP3Xw95oEKgYwiNVQgU73AXxpv");
 	//auto task = client.GetRanking();
 	//data = task.get(); // 非同期タスクの結果を取得
 
@@ -33,7 +33,7 @@ void RankingData::Initialize()
 			// エラー処理: 例外が発生した場合、データロードフラグをfalseに保つ
 			this->data_loaded = false;
 		}
-		});
+	});
 
 }
 

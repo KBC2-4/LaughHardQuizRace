@@ -6,7 +6,7 @@
 
 TitleScene::TitleScene() :background_image(NULL), menu_image(NULL), scroll(0), title_image(NULL), background_sound(NULL),
 cursor_image(NULL), menu_cursor(0), cursor_move_se(0), enter_se(0), play_count(-1), buttonGuidFont(0), ranking(nullptr),
-client(L"AKfycbyCbERdoRMfYxiJLrMaQMS1grPSBHRDSPtoPvH0yrY-7QTZjRLeBYgBqA8zTUY56GtL")
+client(L"AKfycbwTncJE7fNBzWd4aZqG7Q7_ysP9XTNcV91VlStNzjDP3Xw95oEKgYwiNVQgU73AXxpv")
 {
 	buttonGuidFont = CreateFontToHandle("ÉÅÉCÉäÉI", 23, 1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 
